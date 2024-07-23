@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "27235882321",
+    "project_id": "cadenalocationsharing",
+    "storage_bucket": "cadenalocationsharing.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27235882321:android:5ae896568de2cee18cef70",
+        "android_client_info": {
+          "package_name": "com.example.geofencelive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyfjul0pZTTsZALNVEbyMlwynWOGLi96I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
