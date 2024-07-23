@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">GeoFenceLive</string>
     <string name="API_MAP_KEY">AIzaSyAZ3XnM1rP01HTmSaJbuUUCZlfQCCt2QxA</string>
+    <string name="title_activity_geofence_maps">GeofenceMapsActivity</string>
 </resources>

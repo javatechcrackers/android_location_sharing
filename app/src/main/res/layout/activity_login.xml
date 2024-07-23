@@ -16,6 +16,7 @@
         android:orientation="vertical"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
+        android:background="#EDEEF1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,6 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Login Now"
+
             android:textColor="@color/black" />
 
         <TextView
@@ -45,8 +47,12 @@
             android:layout_marginTop="32dp"
             android:ems="10"
             android:hint="Email"
+            android:background="@drawable/rectanglebackground"
+            android:padding="10dp"
+            android:textColorHint="@color/black"
+           android:textColor="@color/black"
             android:inputType="textEmailAddress"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
 
         <EditText
 
@@ -56,7 +62,11 @@
             android:layout_marginTop="16dp"
             android:ems="10"
             android:hint="Password"
+            android:padding="10dp"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
             android:inputType="textPassword"
+            android:background="@drawable/rectanglebackground"
             android:textSize="16sp" />
 
         <Button
@@ -66,16 +76,18 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Log In"
-            android:textColor="@color/black" />
+            android:textSize="20sp"
+            android:background="#008CBA"
+            android:textColor="@color/white" />
 
-        <TextView
-            android:id="@+id/btnSignUp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Don't have an account? Signup"
-            android:textAlignment="center"
-            android:textColor="@color/black" />
+<!--        <TextView-->
+<!--            android:id="@+id/btnSignUp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="24dp"-->
+<!--            android:text="Don't have an account? Signup"-->
+<!--            android:textAlignment="center"-->
+<!--            android:textColor="@color/black" />-->
     </LinearLayout>
 
 

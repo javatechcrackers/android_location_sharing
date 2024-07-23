@@ -9,27 +9,79 @@
     android:id="@+id/mainactivity"
     >
 
-    <TextView
-        android:id="@+id/useremail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="User Email"
-        android:textColor="@color/black"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
 
-        app:layout_constraintBottom_toBottomOf="@+id/logoutbutton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/logoutbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Log Out"
-        android:layout_marginBottom="30dp"
-        android:textColor="@color/black"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:background="#EDEEF1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+
+        >
+
+
+        <TextView
+            android:id="@+id/useremail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Email"
+            android:textColor="@color/black"
+            android:textSize="25dp"
+            android:layout_marginBottom="30dp"
+
+           />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            >
+            <Button
+                android:id="@+id/viewGroupsbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="View Groups"
+                android:layout_marginRight="20dp"
+                android:textColor="@color/black"
+                />
+
+            <Button
+                android:id="@+id/logoutbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log Out"
+
+                android:textColor="@color/black"
+                />
+
+
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/geofenceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open Geofence Map"
+            android:layout_marginTop="30dp"
+            android:textColor="@color/black"
+            />
+
+
+
+
+
+
+    </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

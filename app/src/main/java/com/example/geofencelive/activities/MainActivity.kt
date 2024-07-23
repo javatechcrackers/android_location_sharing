@@ -33,6 +33,12 @@ class MainActivity : ComponentActivity() {
         binding?.logoutbutton?.setOnClickListener{
             logoutUser()
         }
+
+        binding?.geofenceButton?.setOnClickListener{
+            val intent = Intent(this, GeofenceMapsActivity::class.java)
+            startActivity(intent)
+        }
+
 //        setContent {
 //            GeoFenceLiveTheme {
 //                // A surface container using the 'background' color from the theme
