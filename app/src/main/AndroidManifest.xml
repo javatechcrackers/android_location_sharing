@@ -37,7 +37,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCGT1x9aDydJMR-RYQlmgbUuI5v-C3dOrM" />
+            android:value="${GEOFENCE_MAPS_API_KEY}" />
 
         <activity
             android:name=".activities.GeofenceMapsActivity"
