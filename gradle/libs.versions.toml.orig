@@ -14,10 +14,14 @@ appcompat = "1.7.0"
 material = "1.12.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
+<<<<<<< HEAD
 navigationFragmentKtx = "2.6.0"
 navigationUiKtx = "2.6.0"
-playServicesMaps = "19.0.0"googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
+=======
+googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
+>>>>>>> 476520c7190cb6c1abda152c18a8cba0294806f1
 playServicesMaps = "19.0.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -39,10 +43,15 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+<<<<<<< HEAD
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+
+=======
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 play-services-location = {group = "com.google.android.gms", name = "play-services-location", version="17.0.0" }
+>>>>>>> 476520c7190cb6c1abda152c18a8cba0294806f1
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

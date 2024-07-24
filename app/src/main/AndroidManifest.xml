@@ -48,6 +48,13 @@
             android:label="@string/title_activity_geofence_maps"
             android:theme="@style/Theme.AppCompat" />
         <activity
+            android:name=".activities.GroupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LiveLocationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GeoFenceLive" />
+        <activity
             android:name=".activities.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">

@@ -86,10 +86,10 @@ class LoginActivity : AppCompatActivity() {
                 val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.putString("userEmail", user.email)
-                editor.putString("userName", user.username) // Save username if needed
+                editor.putString("displayName", user.displayName) // Save username if needed
                 editor.putString("userDeviceIdentifier", user.deviceIdentifier) // Save device identifier if needed
                 editor.apply()
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, GroupActivity::class.java)
                 startActivity(intent)
                 finish()
             } else {
