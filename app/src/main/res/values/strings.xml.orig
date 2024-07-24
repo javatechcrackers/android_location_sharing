@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">GeoFenceLive</string>
-    <string name="API_MAP_KEY">key</string>
- <string name="title_activity_geofence_maps">GeofenceMapsActivity</string>
-<string-array name="shared_users">
+    <string name="API_MAP_KEY">AIzaSyAZ3XnM1rP01HTmSaJbuUUCZlfQCCt2QxA</string>
+<<<<<<< HEAD
+
+
+    <string-array name="shared_users">
         <item>User 1</item>
         <item>User 2</item>
         <item>User 3</item>
@@ -15,4 +17,9 @@
         <item>User C</item>
         <item>User D</item>
     </string-array>
-<resources>
+
+
+=======
+    <string name="title_activity_geofence_maps">GeofenceMapsActivity</string>
+>>>>>>> 476520c7190cb6c1abda152c18a8cba0294806f1
+</resources>
