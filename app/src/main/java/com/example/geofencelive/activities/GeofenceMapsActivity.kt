@@ -31,6 +31,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.libraries.places.api.Places
 import android.view.inputmethod.InputMethodManager
+import com.example.geofencelive.UtilityClasses.FirestoreHelper
 
 class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap.OnMapLongClickListener{
 
@@ -48,7 +49,12 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
     private val geofenceList = mutableListOf<Geofence>()
 
+    private lateinit var firestoreHelper : FirestoreHelper
+
     private val geofenceId = "Geofence_ID"
+    private lateinit var currUserEmail : String
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,8 +62,17 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         binding = ActivityGeofenceMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+       // val editor = sharedPreferences.edit()
+      //  editor.apply()
+
+
+
+        currUserEmail = sharedPreferences.getString("userEmail", null).toString()
+
         geofencingClient = LocationServices.getGeofencingClient(this)
         geofencingHelper = GeofenceHelper(this);
+        firestoreHelper = FirestoreHelper()
 
         Places.initialize(applicationContext, BuildConfig.GEOFENCE_MAPS_API_KEY)
 
@@ -89,6 +104,8 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+
     }
 
 
@@ -105,6 +122,28 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         addMarker(coordinatesToShow)
         mMap.setOnMapLongClickListener(this)
         enableUserLocation();
+        markPreviouslyAddedGeofences();
+    }
+
+    private fun markPreviouslyAddedGeofences(){
+
+        mMap.clear()
+        firestoreHelper.getGeofenceList(currUserEmail) { geofences ->
+            // Handle the geofences list here
+            for (geofence in geofences) {
+                Log.d("Happy", geofence.geofenceId)
+                val latLng = geofence.latLng;
+                val radius = geofence.geofenceRadius
+
+                addMarker(latLng)
+                addCircle(latLng, radius)
+                Log.d(TAG, geofence.userEmail)
+
+            }
+        }
+
+
+
     }
 
     private fun addMarker(latLng: LatLng) {
@@ -137,7 +176,8 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         }
     }
     private fun addGeofence(latLng: LatLng, radius: Double){
-        val geofence: Geofence = geofencingHelper.getGeofence(geofenceId, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+        val id = System.currentTimeMillis()
+        val geofence: Geofence = geofencingHelper.getGeofence(id.toString(), latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
         val geofencingRequest : GeofencingRequest = geofencingHelper.getGeofencingRequest(geofence)
         val pendingIntent : PendingIntent = geofencingHelper.getPendingIntent()
 
@@ -158,6 +198,8 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
             .addOnSuccessListener { Log.d(TAG, "onSuccess: Geofence Added...")
                 geofenceList.add(geofence)
+                firestoreHelper.addGeofenceData(id.toString(), GEOFENCE_RADIUS, latLng, currUserEmail)
+
             }
             .addOnFailureListener { e ->
                 val errorMessage: String = geofencingHelper.getErrorString(e)
@@ -218,7 +260,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED)
             {
-                mMap.clear()
+               // mMap.clear()
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
                 addMarker(latLng)
                 addCircle(latLng, GEOFENCE_RADIUS)
@@ -233,7 +275,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
             }
         }
         else{
-            mMap.clear()
+           // mMap.clear()
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
             addMarker(latLng)
             addCircle(latLng, GEOFENCE_RADIUS)

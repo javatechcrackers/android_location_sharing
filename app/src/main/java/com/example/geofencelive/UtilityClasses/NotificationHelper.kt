@@ -53,12 +53,12 @@ class NotificationHelper(base: Context?) : ContextWrapper(base) {
         val pendingIntent =
             PendingIntent.getActivity(this, 267, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
         val notification: Notification =
-            NotificationCompat.Builder(this, CHANNEL_ID) //                .setContentTitle(title)
-                //                .setContentText(body)
+            NotificationCompat.Builder(this, CHANNEL_ID)                 .setContentTitle(title)
+                                .setContentText(body)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setStyle(
-                    NotificationCompat.BigTextStyle().setSummaryText("summary")
+                    NotificationCompat.BigTextStyle().setSummaryText(title)
                         .setBigContentTitle(title).bigText(body)
                 )
                 .setContentIntent(pendingIntent)

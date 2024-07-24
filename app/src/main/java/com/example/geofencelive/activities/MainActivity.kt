@@ -57,19 +57,6 @@ class MainActivity : ComponentActivity() {
             .build()
 
         WorkManager.getInstance(this).enqueue(workRequest)
-
-
-//        setContent {
-//            GeoFenceLiveTheme {
-//                // A surface container using the 'background' color from the theme
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    Greeting(userEmail!!)
-//                }
-//            }
-//        }
     }
 
 
