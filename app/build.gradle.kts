@@ -79,6 +79,11 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database:20.0.5")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.0.0")
+    implementation(libs.play.services.maps)
 
 
     testImplementation(libs.junit)

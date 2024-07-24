@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.GroupActivity">
+
+    <!-- Greeting TextView -->
+    <TextView
+        android:id="@+id/tv_greetings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Hi Ashutosh Pandey"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:background="@android:color/white"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:gravity="center" />
+
+    <!-- Live Tracking Button -->
+    <Button
+        android:id="@+id/btn_live_tracking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Live Tracking"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/tv_greetings"
+        android:layout_marginTop="50dp" />
+
+    <!-- Live Tracking Options -->
+    <LinearLayout
+        android:id="@+id/layout_live_tracking_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/btn_live_tracking"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btn_share_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Share Location"
+            android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:id="@+id/btn_shared_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Shared Location"
+            android:layout_gravity="center_horizontal" />
+
+        <!-- Dropdown for Shared Location -->
+        <Spinner
+            android:id="@+id/spinner_shared_locations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:entries="@array/shared_users"
+            android:spinnerMode="dropdown" />
+    </LinearLayout>
+
+    <!-- Geo Fence Button -->
+    <Button
+        android:id="@+id/btn_geo_fence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Geo Fence"
+        android:layout_below="@id/layout_live_tracking_options"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp" />
+
+    <!-- Scrollable List for Geo Fence Users -->
+    <ListView
+        android:id="@+id/list_geo_fence_users"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_geo_fence"
+        android:visibility="gone"
+        android:entries="@array/geo_fence_users" />
+</RelativeLayout>
+
