@@ -63,10 +63,10 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                             val currentCoordinates = LatLng(latitude, longitude)
                             firebaseHelper.postTransitionEvents("Geofence entered", currentCoordinates, userEmail!!)
                             Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
-                            notificationHelper.sendHighPriorityNotification(
-                                "GEOFENCE_TRANSITION_ENTER", "Current Coordinates : $currentCoordinates",
-                                GeofenceMapsActivity::class.java,currentCoordinates
-                            )
+//                            notificationHelper.sendHighPriorityNotification(
+//                                "GEOFENCE_TRANSITION_ENTER", "Current Coordinates : $currentCoordinates",
+//                                GeofenceMapsActivity::class.java,currentCoordinates
+//                            )
                             // Handle the location result here (e.g., update UI or send to server)
 
 
@@ -94,11 +94,11 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                             val currentCoordinates = LatLng(latitude, longitude)
                             firebaseHelper.postTransitionEvents("Geofence exit", currentCoordinates, userEmail!!)
                             Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
-                            notificationHelper.sendHighPriorityNotification(
-                                "GEOFENCE_TRANSITION_EXIT",
-                                "Current Coordinates : $currentCoordinates",
-                                GeofenceMapsActivity::class.java, currentCoordinates
-                            )
+//                            notificationHelper.sendHighPriorityNotification(
+//                                "GEOFENCE_TRANSITION_EXIT",
+//                                "Current Coordinates : $currentCoordinates",
+//                                GeofenceMapsActivity::class.java, currentCoordinates
+//                            )
                             // Handle the location result here (e.g., update UI or send to server)
                         }
 

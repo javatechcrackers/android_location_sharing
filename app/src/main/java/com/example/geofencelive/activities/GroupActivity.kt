@@ -2,6 +2,7 @@ package com.example.geofencelive.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -70,8 +71,11 @@ class GroupActivity : AppCompatActivity() {
         }
 
         btnGeoFence.setOnClickListener {
-            toggleVisibility(listGeoFenceUsers)
-            layoutLiveTrackingOptions.visibility = View.GONE
+//            toggleVisibility(listGeoFenceUsers)
+//            layoutLiveTrackingOptions.visibility = View.GONE
+
+            val intent = Intent(this, GeofenceMapsActivity::class.java)
+            startActivity(intent)
         }
     }
 

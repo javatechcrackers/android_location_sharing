@@ -11,9 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.geofencelive.UtilityClasses.FirestoreWorker
 import com.example.geofencelive.databinding.ActivityLoginBinding
 import com.example.geofencelive.databinding.ActivityMainBinding
 import com.example.geofencelive.ui.theme.GeoFenceLiveTheme
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
 
@@ -28,6 +32,11 @@ class MainActivity : ComponentActivity() {
         val userDeviceIdentifier = sharedPreferences.getString("userDeviceIdentifier", null)
 
         setContentView(binding?.root)
+
+        val workRequest = PeriodicWorkRequestBuilder<FirestoreWorker>(15, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueue(workRequest)
 
         binding?.useremail!!.text = userEmail
         binding?.logoutbutton?.setOnClickListener{

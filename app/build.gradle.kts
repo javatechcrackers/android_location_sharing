@@ -70,7 +70,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 
 
-
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.4.10")
