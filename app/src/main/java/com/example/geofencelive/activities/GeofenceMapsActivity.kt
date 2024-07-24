@@ -2,6 +2,7 @@ package com.example.geofencelive.activities
 
 import android.Manifest
 import android.app.PendingIntent
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -29,6 +30,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.libraries.places.api.Places
+import android.view.inputmethod.InputMethodManager
 
 class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap.OnMapLongClickListener{
 
@@ -36,13 +38,15 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
     private lateinit var binding: ActivityGeofenceMapsBinding
 
     private val TAG = "GEOFENCEMAPSACTIVITY"
-    private val GEOFENCE_RADIUS = 500.0;
+    private var GEOFENCE_RADIUS = 500.0;
     private val FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
     private val BACKGROUND_LOCATION_REQUEST_CODE = 10002;
 
     lateinit var geofencingClient: GeofencingClient
     private lateinit var geofencingHelper: GeofenceHelper
     private lateinit var coordinatesToShow: LatLng
+
+    private val geofenceList = mutableListOf<Geofence>()
 
     private val geofenceId = "Geofence_ID"
 
@@ -61,6 +65,25 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         val nlongitude = intent.getDoubleExtra("notificationLongitude", 77.0745)
 
         coordinatesToShow = LatLng(nlatitude, nlongitude)
+
+        binding?.geofenceRadiusSubmit?.setOnClickListener{
+            val inputText = binding?.etGeofenceRadius?.text.toString()
+            val inputDouble = inputText.toDoubleOrNull()
+
+            if(inputDouble != null){
+                GEOFENCE_RADIUS = inputDouble
+                binding?.etGeofenceRadius?.setText("")
+                binding?.etGeofenceRadius?.clearFocus()
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(binding?.etGeofenceRadius?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+
+                Toast.makeText(this, "Radius changed to $inputDouble metre", Toast.LENGTH_SHORT).show()
+
+            }else{
+                Toast.makeText(this, "Enter a decimal value", Toast.LENGTH_SHORT).show()
+            }
+
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -82,11 +105,6 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         addMarker(coordinatesToShow)
         mMap.setOnMapLongClickListener(this)
         enableUserLocation();
-
-        // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
-//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
     }
 
     private fun addMarker(latLng: LatLng) {
@@ -118,7 +136,6 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
             }
         }
     }
-
     private fun addGeofence(latLng: LatLng, radius: Double){
         val geofence: Geofence = geofencingHelper.getGeofence(geofenceId, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
         val geofencingRequest : GeofencingRequest = geofencingHelper.getGeofencingRequest(geofence)
@@ -139,7 +156,9 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
             return
         }
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
-            .addOnSuccessListener { Log.d(TAG, "onSuccess: Geofence Added...") }
+            .addOnSuccessListener { Log.d(TAG, "onSuccess: Geofence Added...")
+                geofenceList.add(geofence)
+            }
             .addOnFailureListener { e ->
                 val errorMessage: String = geofencingHelper.getErrorString(e)
                 Log.d(TAG, "onFailure: $errorMessage")

@@ -1,5 +1,9 @@
+
+
+
 package com.example.geofencelive.UtilityClasses
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.work.Worker
@@ -8,7 +12,9 @@ import com.example.geofencelive.activities.GeofenceMapsActivity
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.gms.maps.model.LatLng
-
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
@@ -18,12 +24,15 @@ class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker
 
 
     override fun doWork(): Result {
-        listenToFirestore()
+        listenToFirestore(applicationContext)
         return Result.success()
     }
 
-    private fun listenToFirestore() {
-        val processedEvents = getProcessedEvents(applicationContext)
+    private fun listenToFirestore(context: Context) {
+
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Activity.MODE_PRIVATE)
+     //   val userEmail = sharedPreferences.getString("userEmail", null)
+
         firestore.collection("geofence")
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
@@ -37,6 +46,11 @@ class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker
                             val documentId = dc.document.id
                             val useremail = dc.document.getString("useremail")
                             val transition = dc.document.getString("transitionType")
+                            val time = dc.document.getLong("createdAt")
+
+                            val date = Date(time!!)
+                            val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            val formattedDate = format.format(date)
 
                             val latLngMap = dc.document.get("latLng") as? Map<String, Any>
                             val latitude = latLngMap?.get("latitude") as? Double
@@ -44,19 +58,39 @@ class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker
 
                             val currCoordinates = LatLng(latitude!!, longitude!!)
 
-                            if (!processedEvents.contains(documentId)) {
-                                saveProcessedEvent(applicationContext, documentId)
+                            val docId = sharedPreferences.getString(documentId.toString(), null)
+
+                            val currentTimeMillis = System.currentTimeMillis()
+                            val fiveMinutesInMillis = 5 * 60 * 1000 // 5 minutes in milliseconds
+
+
+
+                            val fiveMinutesAgoMillis = currentTimeMillis - fiveMinutesInMillis
+
+
+                            val isWithinLastFiveMinutes = time >= fiveMinutesAgoMillis
+
+
+                            if(docId == null && isWithinLastFiveMinutes){
+                                val editor = sharedPreferences.edit()
+                                editor.putString(documentId.toString(), documentId.toString())
+                               // Save device identifier if needed
+                                editor.apply()
                                 val notificationHelper = NotificationHelper(applicationContext)
                                 notificationHelper.sendHighPriorityNotification(
                                     "$useremail Geofence event",
-                                    "Transition type: $transition: Current Coordinates: $currCoordinates",
+                                    "Transition type: $transition: Current Coordinates: $currCoordinates at $formattedDate" ,
                                     GeofenceMapsActivity::class.java,
                                     currCoordinates
                                 )
+
+                                Log.d("Notification sent ", useremail.toString())
                             }
 
 
-                            Log.d("Happy", useremail.toString())
+
+
+
                         }
 
                         DocumentChange.Type.MODIFIED -> {

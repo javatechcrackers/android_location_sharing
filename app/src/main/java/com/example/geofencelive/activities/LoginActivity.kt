@@ -47,7 +47,10 @@ class LoginActivity : AppCompatActivity() {
 
             val userEmail = sharedPreferences.getString("userEmail", null)
             if(!userEmail.isNullOrEmpty()){
-                redirectToMain()
+               // redirectToMain()
+                val intent = Intent(this, GroupActivity::class.java)
+                startActivity(intent)
+                finish()
             }
 
 
@@ -74,7 +77,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun userLogin() {
 
-        Toast.makeText(this, "Method called", Toast.LENGTH_LONG).show()
+       // Toast.makeText(this, "Method called", Toast.LENGTH_LONG).show()
         val email = binding?.etEmailAddress?.text.toString()
         val password = binding?.etPassword?.text.toString()
 
