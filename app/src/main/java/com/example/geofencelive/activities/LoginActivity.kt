@@ -93,7 +93,7 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             } else {
-                Toast.makeText(this, "User not found.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Wrong email or password", Toast.LENGTH_SHORT).show()
             }
 
         }
