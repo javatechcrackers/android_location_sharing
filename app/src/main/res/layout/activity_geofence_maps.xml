@@ -16,33 +16,67 @@
         android:padding="5dp"
         android:gravity="center_vertical"
         >
-        <EditText
-
-            android:id="@+id/etGeofenceRadius"
-            android:layout_width="0dp"
-            android:layout_weight="0.7"
-            android:layout_height="wrap_content"
-
-            android:ems="10"
-            android:hint="Email"
-            android:background="@drawable/rectanglebackground"
-            android:padding="10dp"
-            android:textColorHint="@color/black"
-            android:textColor="@color/black"
-            android:inputType="numberDecimal"
-            android:textSize="20sp" />
 
         <Button
             android:layout_width="0dp"
-            android:layout_weight="0.3"
+            android:layout_weight="0.2"
             android:layout_height="wrap_content"
-            android:id="@+id/geofenceRadiusSubmit"
+            android:id="@+id/geofenceRadiusMinus"
 
-            android:text="Submit"
+            android:text="-"
+            android:textSize="25sp"
+            android:textFontWeight="900"
+            android:textStyle="bold"
+
 
             android:textColor="@color/black"
 
             />
+
+        <TextView
+            android:id="@+id/tvgeofenceRadius"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:layout_margin="10dp"
+            android:textSize="15sp"
+
+
+            />
+
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="wrap_content"
+            android:id="@+id/geofenceRadiusPlus"
+
+            android:text="+"
+            android:textSize="25sp"
+
+            android:textColor="@color/black"
+
+            />
+
+
+
+<!--        <EditText-->
+
+<!--            android:id="@+id/etGeofenceRadius"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_weight="0.7"-->
+<!--            android:layout_height="wrap_content"-->
+
+<!--            android:ems="10"-->
+<!--            android:hint="Email"-->
+<!--            android:background="@drawable/rectanglebackground"-->
+<!--            android:padding="10dp"-->
+<!--            android:textColorHint="@color/black"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:inputType="numberDecimal"-->
+<!--            android:textSize="20sp" />-->
+
+
 
 
 
