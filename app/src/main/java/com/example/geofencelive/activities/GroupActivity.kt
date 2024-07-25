@@ -7,23 +7,34 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity
-import com.example.geofencelive.R
+import android.util.Log
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.geofencelive.R
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.util.concurrent.TimeUnit
 
 class GroupActivity : AppCompatActivity() {
@@ -39,8 +50,11 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var listGeoFenceUsers: ListView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var databaseReference: DatabaseReference
+    private lateinit var userAdapter: ArrayAdapter<String>
+    private val sharedUsers = mutableListOf<String>()
+    private var isUserInteractingWithSpinner = false
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint("MissingInflatedId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_group)
@@ -54,12 +68,21 @@ class GroupActivity : AppCompatActivity() {
         layoutLiveTrackingOptions = findViewById(R.id.layout_live_tracking_options)
         btnShareLocation = findViewById(R.id.btn_share_location)
         btnSharedLocation = findViewById(R.id.btn_shared_location)
+        spinnerSharedLocations = findViewById(R.id.spinnerSharedLocations)
         btnLogout = findViewById(R.id.btn_user_logout)
-        spinnerSharedLocations = findViewById(R.id.spinner_shared_locations)
         btnGeoFence = findViewById(R.id.btn_geo_fence)
         listGeoFenceUsers = findViewById(R.id.list_geo_fence_users)
         nameText = findViewById(R.id.tv_greetings)
 
+        // Set the flag when the user starts interacting with the spinner
+        spinnerSharedLocations.setOnTouchListener { v, event ->
+            isUserInteractingWithSpinner = true
+            false
+        }
+
+        userAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf())
+        userAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerSharedLocations.adapter = userAdapter
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         databaseReference = FirebaseDatabase.getInstance().reference.child("locations")
@@ -80,6 +103,27 @@ class GroupActivity : AppCompatActivity() {
 
         btnSharedLocation.setOnClickListener {
             toggleVisibility(spinnerSharedLocations)
+            fetchSharedUsers()
+        }
+
+        spinnerSharedLocations.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                if (isUserInteractingWithSpinner  ) {
+                    // Handle the selection as usual
+                    if (position < sharedUsers.size) {
+                        val selectedUser = sharedUsers[position]
+                        val intent = Intent(this@GroupActivity, LocationActivity::class.java)
+                        intent.putExtra("userId", selectedUser)
+                        startActivity(intent)
+                    } else {
+                        Log.e("SpinnerSelection", "Selected position $position out of bounds for sharedUsers list of size ${sharedUsers.size}")
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Do nothing
+            }
         }
 
         btnLogout.setOnClickListener {
@@ -87,9 +131,6 @@ class GroupActivity : AppCompatActivity() {
         }
 
         btnGeoFence.setOnClickListener {
-//            toggleVisibility(listGeoFenceUsers)
-//            layoutLiveTrackingOptions.visibility = View.GONE
-
             val intent = Intent(this, GeofenceMapsActivity::class.java)
             startActivity(intent)
         }
@@ -178,5 +219,23 @@ class GroupActivity : AppCompatActivity() {
         )
         userName?.let { databaseReference.child(it).setValue(locationData) }
 
+    }
+    private fun fetchSharedUsers() {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                sharedUsers.clear()
+                userAdapter.clear()
+                dataSnapshot.children.forEach { snapshot ->
+                    val userId = snapshot.key ?: return@forEach
+                    sharedUsers.add(userId);
+                    userAdapter.add(userId)
+                }
+                userAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Handle possible errors
+            }
+        })
     }
 }
