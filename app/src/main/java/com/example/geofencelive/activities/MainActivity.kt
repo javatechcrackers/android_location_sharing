@@ -17,6 +17,8 @@ import com.example.geofencelive.UtilityClasses.FirestoreWorker
 import com.example.geofencelive.databinding.ActivityLoginBinding
 import com.example.geofencelive.databinding.ActivityMainBinding
 import com.example.geofencelive.ui.theme.GeoFenceLiveTheme
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
@@ -26,19 +28,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-        val userEmail = sharedPreferences.getString("userEmail", null)
-        val userName = sharedPreferences.getString("userName", null)
-        val userDeviceIdentifier = sharedPreferences.getString("userDeviceIdentifier", null)
-
         setContentView(binding?.root)
 
-        val workRequest = PeriodicWorkRequestBuilder<FirestoreWorker>(15, TimeUnit.MINUTES)
-            .build()
+        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+        val userEmail = sharedPreferences.getString("userEmail", null)
 
-        WorkManager.getInstance(this).enqueue(workRequest)
+        binding?.useremail?.text = userEmail
 
-        binding?.useremail!!.text = userEmail
+
+
+
+
         binding?.logoutbutton?.setOnClickListener{
             logoutUser()
         }
@@ -48,18 +48,18 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         }
 
-//        setContent {
-//            GeoFenceLiveTheme {
-//                // A surface container using the 'background' color from the theme
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    Greeting(userEmail!!)
-//                }
-//            }
-//        }
+        binding?.viewGroupButton?.setOnClickListener{
+            val intent = Intent(this, GroupActivity::class.java)
+            startActivity(intent)
+        }
+
+        val workRequest = PeriodicWorkRequestBuilder<FirestoreWorker>(15, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueue(workRequest)
     }
+
+
 
     private fun logoutUser() {
         // Clear SharedPreferences data

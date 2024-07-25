@@ -83,5 +83,19 @@
         android:layout_below="@id/btn_geo_fence"
         android:visibility="gone"
         android:entries="@array/geo_fence_users" />
+
+    <Button
+        android:id="@+id/btn_user_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="148dp"
+        android:layout_marginEnd="148dp"
+        android:layout_marginBottom="48dp"
+        android:text="Logout" />
+
 </RelativeLayout>
 

@@ -61,8 +61,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                         override fun onLocationResult(latitude: Double, longitude: Double) {
                             Log.d(TAG, "Current location: ($latitude, $longitude)")
                             val currentCoordinates = LatLng(latitude, longitude)
-                            firebaseHelper.postTransitionEvents("Geofence entered", currentCoordinates, userEmail!!)
                             Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
+                            firebaseHelper.postTransitionEvents("Geofence entered", currentCoordinates, userEmail!!)
+
 //                            notificationHelper.sendHighPriorityNotification(
 //                                "GEOFENCE_TRANSITION_ENTER", "Current Coordinates : $currentCoordinates",
 //                                GeofenceMapsActivity::class.java,currentCoordinates

@@ -91,7 +91,7 @@ dependencies {
 
 //    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
-//    implementation("com.google.android.gms:play-services-location:17.0.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.libraries.places:places:3.1.0")
 
     implementation("androidx.work:work-runtime-ktx:2.7.1")
