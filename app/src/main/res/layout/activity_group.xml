@@ -57,12 +57,12 @@
 
         <!-- Dropdown for Shared Location -->
         <Spinner
-            android:id="@+id/spinner_shared_locations"
-            android:layout_width="match_parent"
+            android:id="@+id/spinnerSharedLocations"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:visibility="gone"
-            android:entries="@array/shared_users"
-            android:spinnerMode="dropdown" />
+            android:layout_marginTop="16dp" />
     </LinearLayout>
 
     <!-- Geo Fence Button -->
