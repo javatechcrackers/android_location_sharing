@@ -3,6 +3,7 @@ package com.example.geofencelive.UtilityClasses
 import android.util.Log
 import com.example.geofencelive.Models.GeofenceModel
 import com.example.geofencelive.Models.GeofenceTransitionModel
+import com.example.geofencelive.Models.userToken
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
@@ -59,6 +60,16 @@ class FirestoreHelper{
             callback(list)
         }
     }
+
+    fun saveUserToken(userEmail: String, token:String){
+        val nToken = userToken(
+            token,
+            userEmail
+        )
+
+        val tokenCollection = db.collection("userFCMToken");
+        tokenCollection.document().set(nToken)
+    }
 //    fun fetchGeofences(email: String, callback: (List<GeofenceModel>) -> Unit) {
 //
 //        getGeofences(email) { geofences ->
@@ -84,30 +95,6 @@ class FirestoreHelper{
 
                 GeofenceModel(latLng, id, radius, email)
 
-//                val latLngMap = document.get("latLng") as? Map<String, Any>
-//                val latitude = latLngMap?.get("latitude") as? Double
-//                val longitude = latLngMap?.get("longitude") as? Double
-//
-//                val currCoordinates = LatLng(latitude!!, longitude!!)
-//
-//
-//
-//                 document.toObject(GeofenceModel::class.java)?.copy(
-//                     latLng = currCoordinates
-//                 )
-
-//                document.toObject(GeofenceModel::class.java)?.copy(
-//
-//
-//                    val latitude = document.getDouble("latLng.latitude") ?: 0.0
-//                    val longitude = document.getDouble("latLng.longitude") ?: 0.0
-//
-//                    val latLng = LatLng(latitude!!, longitude!!)
-////                    latLng = LatLng(
-////                        document.getDouble("latLng.latitude") ?: 0.0,
-////                        document.getDouble("latLng.longitude") ?: 0.0
-////                    )
-//                )
             }
 
             withContext(Dispatchers.Main) {
