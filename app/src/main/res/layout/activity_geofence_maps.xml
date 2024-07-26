@@ -15,52 +15,172 @@
         android:orientation="horizontal"
         android:padding="5dp"
         android:gravity="center_vertical"
+        android:background="@drawable/rectanglebackground"
         >
 
-        <Button
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight="0.2"
-            android:layout_height="wrap_content"
-            android:id="@+id/geofenceRadiusMinus"
-
-            android:text="-"
-            android:textSize="25sp"
-            android:textFontWeight="900"
-            android:textStyle="bold"
-
-
-            android:textColor="@color/black"
-
-            />
-
-        <TextView
-            android:id="@+id/tvgeofenceRadius"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.5"
-            android:layout_margin="10dp"
-            android:textSize="15sp"
+            android:layout_gravity="center_vertical"
+            android:padding="4dp"
+
+            android:background="@drawable/rectanglebackground"
+            >
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="0.2"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circular_button"
+                android:id="@+id/geofenceRadiusMinus"
+
+                android:text="-"
+                android:textSize="25sp"
+                android:textFontWeight="900"
+                android:textStyle="bold"
 
 
-            />
+                android:textColor="@color/black"
+
+                />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+
+                >
+                <TextView
+                    android:id="@+id/tvgeofenceRadiustext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
 
 
-        <Button
+                    android:textSize="10sp"
+                    android:text="Geofence Radius"
+                    android:textAlignment="center"
+
+                    />
+
+                <TextView
+                    android:id="@+id/tvgeofenceRadius"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+
+                    android:textSize="15sp"
+                    android:text="hhhhhhh"
+                    android:textAlignment="center"
+
+                    />
+
+            </LinearLayout>
+
+
+
+
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="0.2"
+                android:background="@drawable/circular_button"
+                android:layout_height="wrap_content"
+                android:id="@+id/geofenceRadiusPlus"
+
+                android:text="+"
+                android:textSize="25sp"
+
+                android:textColor="@color/black"
+
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight="0.2"
-            android:layout_height="wrap_content"
-            android:id="@+id/geofenceRadiusPlus"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:padding="4dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/rectanglebackground"
+            >
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="0.2"
+                android:layout_height="wrap_content"
+                android:id="@+id/geofenceEntryDurationMinus"
 
-            android:text="+"
-            android:textSize="25sp"
-
-            android:textColor="@color/black"
-
-            />
-
+                android:text="-"
+                android:textSize="25sp"
+                android:background="@drawable/circular_button"
+                android:textFontWeight="900"
+                android:textStyle="bold"
 
 
-<!--        <EditText-->
+                android:textColor="@color/black"
+
+                />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+
+                >
+                <TextView
+                    android:id="@+id/tvGeofenceEnterLimittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+
+                    android:textSize="10sp"
+                    android:text="Time Limit for user"
+                    android:textAlignment="center"
+
+                    />
+
+                <TextView
+                    android:id="@+id/tvgeofenceTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+
+                    android:textSize="15sp"
+                    android:text="2 minutes"
+                    android:textAlignment="center"
+
+                    />
+
+            </LinearLayout>
+
+
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="0.2"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circular_button"
+                android:id="@+id/geofenceEntryDurationPlus"
+
+                android:text="+"
+                android:textSize="25sp"
+
+                android:textColor="@color/black"
+
+                />
+
+        </LinearLayout>
+
+
+
+
+
+
+        <!--        <EditText-->
 
 <!--            android:id="@+id/etGeofenceRadius"-->
 <!--            android:layout_width="0dp"-->

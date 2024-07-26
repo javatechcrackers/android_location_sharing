@@ -69,14 +69,14 @@ class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker
 
 
                             val isWithinLastFiveMinutes = time >= fiveMinutesAgoMillis
+                            val notificationHelper = NotificationHelper(applicationContext)
 
-
-                            if(docId == null && isWithinLastFiveMinutes){
+                            if(docId == null && isWithinLastFiveMinutes && transition != "No Event Happened"){
                                 val editor = sharedPreferences.edit()
                                 editor.putString(documentId.toString(), documentId.toString())
                                // Save device identifier if needed
                                 editor.apply()
-                                val notificationHelper = NotificationHelper(applicationContext)
+
                                 notificationHelper.sendHighPriorityNotification(
                                     "$useremail Geofence event",
                                     "Transition type: $transition: Current Coordinates: $currCoordinates at $formattedDate" ,
@@ -85,6 +85,19 @@ class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker
                                 )
 
                                 Log.d("Notification sent ", useremail.toString())
+                            }
+
+                            if(docId == null && isWithinLastFiveMinutes && transition == "No Event Happened"){
+                                val editor = sharedPreferences.edit()
+                                editor.putString(documentId.toString(), documentId.toString())
+                                // Save device identifier if needed
+                                editor.apply()
+                                notificationHelper.sendHighPriorityNotification(
+                                    "No Event Happened",
+                                    "$useremail didn't entered in geofence within given time. Time limit exhausted at $formattedDate" ,
+                                    GeofenceMapsActivity::class.java,
+                                    currCoordinates
+                                )
                             }
 
 

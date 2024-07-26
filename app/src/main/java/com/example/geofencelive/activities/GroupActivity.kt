@@ -112,7 +112,7 @@ class GroupActivity : AppCompatActivity() {
                     // Handle the selection as usual
                     if (position < sharedUsers.size) {
                         val selectedUser = sharedUsers[position]
-                        val intent = Intent(this@GroupActivity, LocationActivity::class.java)
+                       // val intent = Intent(this@GroupActivity, LocationActivity::class.java)
                         intent.putExtra("userId", selectedUser)
                         startActivity(intent)
                     } else {

@@ -47,6 +47,7 @@ class NotificationHelper(base: Context?) : ContextWrapper(base) {
             putExtra("notificationLatitude", latLng.latitude)
             putExtra("notificationLongitude", latLng.longitude)
 
+
             // Set flags to ensure the activity is started correctly
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }

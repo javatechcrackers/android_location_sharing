@@ -51,33 +51,36 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             val geofenceList : MutableList<Geofence>? = geofencingEvent.triggeringGeofences;
             for (geofence in geofenceList!!) {
                 Log.d(TAG, "onReceive: geofence list" + geofence.requestId)
-            }
 
-            val transitionType: Number = geofencingEvent.geofenceTransition;
+                val geofenceId = geofence.requestId
 
-            when (transitionType) {
-                Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                    getCurrentLocation(context, object : LocationResultCallback {
-                        override fun onLocationResult(latitude: Double, longitude: Double) {
-                            Log.d(TAG, "Current location: ($latitude, $longitude)")
-                            val currentCoordinates = LatLng(latitude, longitude)
-                            Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
-                            firebaseHelper.postTransitionEvents("Geofence entered", currentCoordinates, userEmail!!)
+                val transitionType: Number = geofencingEvent.geofenceTransition
+
+                when (transitionType) {
+                    Geofence.GEOFENCE_TRANSITION_ENTER -> {
+                        getCurrentLocation(context, object : LocationResultCallback {
+                            override fun onLocationResult(latitude: Double, longitude: Double) {
+                                Log.d(TAG, "Current location: ($latitude, $longitude)")
+                                val currentCoordinates = LatLng(latitude, longitude)
+                                Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
+                                firebaseHelper.postTransitionEvents("Geofence entered", currentCoordinates, userEmail!!)
+                                firebaseHelper.updateGeofenceEnteredFlag(geofenceId);
+
 
 //                            notificationHelper.sendHighPriorityNotification(
 //                                "GEOFENCE_TRANSITION_ENTER", "Current Coordinates : $currentCoordinates",
 //                                GeofenceMapsActivity::class.java,currentCoordinates
 //                            )
-                            // Handle the location result here (e.g., update UI or send to server)
+                                // Handle the location result here (e.g., update UI or send to server)
 
 
-                        }
+                            }
 
-                        override fun onLocationError(errorMessage: String) {
-                            Log.e(TAG, errorMessage)
-                        }
-                    })
-                }
+                            override fun onLocationError(errorMessage: String) {
+                                Log.e(TAG, errorMessage)
+                            }
+                        })
+                    }
 
 //                Geofence.GEOFENCE_TRANSITION_DWELL -> {
 //                    Toast.makeText(context, "GEOFENCE_TRANSITION_DWELL", Toast.LENGTH_LONG).show()
@@ -87,28 +90,89 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 //                    )
 //                }
 
-                Geofence.GEOFENCE_TRANSITION_EXIT -> {
+                    Geofence.GEOFENCE_TRANSITION_EXIT -> {
 
-                    getCurrentLocation(context, object : LocationResultCallback {
-                        override fun onLocationResult(latitude: Double, longitude: Double) {
-                            Log.d(TAG, "Current location: ($latitude, $longitude)")
-                            val currentCoordinates = LatLng(latitude, longitude)
-                            firebaseHelper.postTransitionEvents("Geofence exit", currentCoordinates, userEmail!!)
-                            Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
+                        getCurrentLocation(context, object : LocationResultCallback {
+                            override fun onLocationResult(latitude: Double, longitude: Double) {
+                                Log.d(TAG, "Current location: ($latitude, $longitude)")
+                                val currentCoordinates = LatLng(latitude, longitude)
+                                firebaseHelper.postTransitionEvents("Geofence exit", currentCoordinates, userEmail!!)
+                                Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
+                                firebaseHelper.updateGeofenceEnteredFlag(geofenceId);
 //                            notificationHelper.sendHighPriorityNotification(
 //                                "GEOFENCE_TRANSITION_EXIT",
 //                                "Current Coordinates : $currentCoordinates",
 //                                GeofenceMapsActivity::class.java, currentCoordinates
 //                            )
-                            // Handle the location result here (e.g., update UI or send to server)
-                        }
+                                // Handle the location result here (e.g., update UI or send to server)
+                            }
 
-                        override fun onLocationError(errorMessage: String) {
-                            Log.e(TAG, errorMessage)
-                        }
-                    })
+                            override fun onLocationError(errorMessage: String) {
+                                Log.e(TAG, errorMessage)
+                            }
+                        })
+                    }
                 }
+
             }
+
+            val transitionType: Number = geofencingEvent.geofenceTransition;
+
+//            when (transitionType) {
+//                Geofence.GEOFENCE_TRANSITION_ENTER -> {
+//                    getCurrentLocation(context, object : LocationResultCallback {
+//                        override fun onLocationResult(latitude: Double, longitude: Double) {
+//                            Log.d(TAG, "Current location: ($latitude, $longitude)")
+//                            val currentCoordinates = LatLng(latitude, longitude)
+//                            Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
+//                            firebaseHelper.postTransitionEvents("Geofence entered", currentCoordinates, userEmail!!)
+//
+//
+////                            notificationHelper.sendHighPriorityNotification(
+////                                "GEOFENCE_TRANSITION_ENTER", "Current Coordinates : $currentCoordinates",
+////                                GeofenceMapsActivity::class.java,currentCoordinates
+////                            )
+//                            // Handle the location result here (e.g., update UI or send to server)
+//
+//
+//                        }
+//
+//                        override fun onLocationError(errorMessage: String) {
+//                            Log.e(TAG, errorMessage)
+//                        }
+//                    })
+//                }
+//
+////                Geofence.GEOFENCE_TRANSITION_DWELL -> {
+////                    Toast.makeText(context, "GEOFENCE_TRANSITION_DWELL", Toast.LENGTH_LONG).show()
+////                    notificationHelper.sendHighPriorityNotification(
+////                        "GEOFENCE_TRANSITION_DWELL", "",
+////                        MapsActivity::class.java
+////                    )
+////                }
+//
+//                Geofence.GEOFENCE_TRANSITION_EXIT -> {
+//
+//                    getCurrentLocation(context, object : LocationResultCallback {
+//                        override fun onLocationResult(latitude: Double, longitude: Double) {
+//                            Log.d(TAG, "Current location: ($latitude, $longitude)")
+//                            val currentCoordinates = LatLng(latitude, longitude)
+//                            firebaseHelper.postTransitionEvents("Geofence exit", currentCoordinates, userEmail!!)
+//                            Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT Current Coordinates : $currentCoordinates", Toast.LENGTH_LONG).show()
+////                            notificationHelper.sendHighPriorityNotification(
+////                                "GEOFENCE_TRANSITION_EXIT",
+////                                "Current Coordinates : $currentCoordinates",
+////                                GeofenceMapsActivity::class.java, currentCoordinates
+////                            )
+//                            // Handle the location result here (e.g., update UI or send to server)
+//                        }
+//
+//                        override fun onLocationError(errorMessage: String) {
+//                            Log.e(TAG, errorMessage)
+//                        }
+//                    })
+//                }
+//            }
         }else{
             Toast.makeText(context, "Geofence event null", Toast.LENGTH_SHORT).show()
         }

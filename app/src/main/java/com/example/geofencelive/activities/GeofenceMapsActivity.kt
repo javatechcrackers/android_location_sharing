@@ -12,6 +12,7 @@ import android.location.Location
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
@@ -41,6 +42,7 @@ import com.google.android.libraries.places.api.Places
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
 import com.example.geofencelive.UtilityClasses.FirestoreHelper
+import com.example.geofencelive.UtilityClasses.NotificationHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -55,8 +57,10 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
     private val TAG = "GEOFENCEMAPSACTIVITY"
     private var GEOFENCE_RADIUS = 500.0;
+    private var durationMinutes = 2;
     private val FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
     private val BACKGROUND_LOCATION_REQUEST_CODE = 10002;
+
 
     lateinit var geofencingClient: GeofencingClient
     private lateinit var geofencingHelper: GeofenceHelper
@@ -81,7 +85,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         super.onCreate(savedInstanceState)
 
         binding = ActivityGeofenceMapsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(binding?.root)
 
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
        // val editor = sharedPreferences.edit()
@@ -102,11 +106,33 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
         coordinatesToShow = LatLng(nlatitude, nlongitude)
 
+        binding?.tvgeofenceTime?.text = "$durationMinutes Minutes"
+
+        binding?.geofenceEntryDurationMinus?.setOnClickListener {
+            if(durationMinutes > 1){
+                durationMinutes = durationMinutes-1;
+                binding?.tvgeofenceTime?.text = "$durationMinutes Minutes"
+            }
+            else{
+                Toast.makeText(this, "Time can not be less than 1 minute", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding?.geofenceEntryDurationPlus?.setOnClickListener {
+            if(durationMinutes < 60){
+                durationMinutes = durationMinutes+1;
+                binding?.tvgeofenceTime?.text = "$durationMinutes Minutes"
+            }
+            else{
+                Toast.makeText(this, "Time can not be greater than 60 minutes", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding?.geofenceRadiusMinus?.setOnClickListener {
 
             if(GEOFENCE_RADIUS > 100){
                 GEOFENCE_RADIUS = GEOFENCE_RADIUS - 50;
-                binding?.tvgeofenceRadius?.text = "Current Radius is $GEOFENCE_RADIUS metre"
+                binding?.tvgeofenceRadius?.text = "$GEOFENCE_RADIUS metre"
             }
             else{
                 Toast.makeText(this, "Radius can not be smaller than 100 metre", Toast.LENGTH_SHORT).show()
@@ -119,7 +145,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
             if(GEOFENCE_RADIUS<1000){
                 GEOFENCE_RADIUS = GEOFENCE_RADIUS + 50;
-                binding?.tvgeofenceRadius?.text = "Current Radius is $GEOFENCE_RADIUS metre"
+                binding?.tvgeofenceRadius?.text = "$GEOFENCE_RADIUS metre"
             }
             else{
                 Toast.makeText(this, "Radius can not be greater than 1000 metre", Toast.LENGTH_SHORT).show()
@@ -128,26 +154,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
         }
 
-        binding?.tvgeofenceRadius?.text = "Current Radius is $GEOFENCE_RADIUS metre"
-
-//        binding?.geofenceRadiusSubmit?.setOnClickListener{
-//            val inputText = binding?.etGeofenceRadius?.text.toString()
-//            val inputDouble = inputText.toDoubleOrNull()
-//
-//            if(inputDouble != null){
-//                GEOFENCE_RADIUS = inputDouble
-//                binding?.etGeofenceRadius?.setText("")
-//                binding?.etGeofenceRadius?.clearFocus()
-//                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                imm.hideSoftInputFromWindow(binding?.etGeofenceRadius?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-//
-//                Toast.makeText(this, "Radius changed to $inputDouble metre", Toast.LENGTH_SHORT).show()
-//
-//            }else{
-//                Toast.makeText(this, "Enter a decimal value", Toast.LENGTH_SHORT).show()
-//            }
-//
-//        }
+        binding?.tvgeofenceRadius?.text = "$GEOFENCE_RADIUS metre"
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -167,10 +174,17 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
         if(coordinatesToShow != nagarro){
             mMap.addMarker(MarkerOptions().position(coordinatesToShow).title("User coordinates when geofence event occur"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinatesToShow, 16F))
+            addMarker(coordinatesToShow)
         }
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinatesToShow, 16F))
-        addMarker(coordinatesToShow)
+        else{
+            mMap.addMarker(MarkerOptions().position(nagarro).title("Default Location"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nagarro, 16F))
+            addMarker(nagarro)
+        }
+
+
         mMap.setOnMapLongClickListener(this)
         enableUserLocation();
 
@@ -298,11 +312,11 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
                 editor.apply()
                 val key = "${geofence.geofenceId}${geofence.userEmail}"
 
-                val userEmail = sharedPreferences.getString(key, null)
+                val isGeofenceExist = sharedPreferences.getString(key, null)
                 val latLng = geofence.latLng;
                 val radius = geofence.geofenceRadius
 
-                if(userEmail != null){
+                if(isGeofenceExist != null){
                     addMarker(latLng)
                     addCircle(latLng, radius)
                     Log.d(TAG, geofence.userEmail)
@@ -383,22 +397,62 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
             .addOnSuccessListener { Log.d(TAG, "onSuccess: Geofence Added...")
                 geofenceList.add(geofence)
-                firestoreHelper.addGeofenceData(id.toString(), GEOFENCE_RADIUS, latLng, currUserEmail)
+                val entryDeadline = System.currentTimeMillis() + durationMinutes * 60 * 1000 // current time + duration in milliseconds
+                firestoreHelper.addGeofenceData(id.toString(), GEOFENCE_RADIUS, latLng, currUserEmail, entryDeadline)
                 val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.apply()
 
                 val key = "$id$currUserEmail"
-
-
                 editor.putString(key, key) // Save device identifier if needed
                 editor.apply()
+
+                object : CountDownTimer((durationMinutes *60 *1000).toLong(), 1000) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        // Do something every second if needed
+                    }
+
+                    override fun onFinish() {
+
+                        var enteredFlag = false;
+
+                        firestoreHelper.getGeofenceById(id.toString()){geofenceDoc->
+
+                            enteredFlag = geofenceDoc?.enteredFlag!!
+
+                            Log.d("Maps activity entered flag", enteredFlag.toString())
+
+                            if(!enteredFlag){
+
+                                firestoreHelper.postTransitionEvents("No Event Happened", latLng, currUserEmail)
+//                            val notificationHelper = NotificationHelper(baseContext)
+//                            notificationHelper.sendHighPriorityNotification(
+//                                "No Transition Happened", "User $currUserEmail didn't entered into geofence in given time!!",
+//                                GeofenceMapsActivity::class.java,latLng
+//                            )
+
+                            }
+
+                        }
+
+                    //   val entered =  firestoreHelper.getGeofencebyBool(id.toString())
+
+
+
+                        // Timer finished, check if user entered the geofence
+                        //  sendNotification(context, "No entry", "User did not enter the geofence within the specified time.")
+                    }
+                }.start()
 
             }
             .addOnFailureListener { e ->
                 val errorMessage: String = geofencingHelper.getErrorString(e)
                 Log.d(TAG, "onFailure: $errorMessage")
             }
+
+
+
+
     }
 
     private fun zoomOnMap(latLng:LatLng){
