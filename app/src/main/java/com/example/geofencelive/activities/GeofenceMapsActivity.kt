@@ -1,6 +1,7 @@
 package com.example.geofencelive.activities
 
 import android.graphics.Canvas
+import android.os.Handler
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
@@ -193,26 +194,28 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        markPreviouslyAddedGeofences();
+
         val nagarro = LatLng(28.4916, 77.0745 )
 
-        if(coordinatesToShow != nagarro){
-            mMap.addMarker(MarkerOptions().position(coordinatesToShow).title("User coordinates when geofence event occur"))
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinatesToShow, 16F))
-            addMarker(coordinatesToShow)
-        }
-
-        else{
-            mMap.addMarker(MarkerOptions().position(nagarro).title("Default Location"))
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nagarro, 16F))
-            addMarker(nagarro)
-        }
+//        if(coordinatesToShow != nagarro){
+//            mMap.addMarker(MarkerOptions().position(coordinatesToShow).title("User coordinates when geofence event occur"))
+//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinatesToShow, 16F))
+//            addMarker(coordinatesToShow)
+//        }
+//
+//        else{
+//            mMap.addMarker(MarkerOptions().position(nagarro).title("Default Location"))
+//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nagarro, 16F))
+//            addMarker(nagarro)
+//        }
 
 
         mMap.setOnMapLongClickListener(this)
         enableUserLocation();
 
 
-        markPreviouslyAddedGeofences();
+
         //setupLocation()
 
         setupLocationUpdates()
@@ -327,31 +330,69 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
         mMap.clear()
         firestoreHelper.getGeofenceList(currUserEmail) { geofences ->
+
+            val nagarro = LatLng(28.4916, 77.0745 )
+
+            if(coordinatesToShow != nagarro){
+                val marker = mMap.addMarker(MarkerOptions().position(coordinatesToShow).title("User coordinates when geofence event occur"))
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinatesToShow, 16F))
+               // addMarker(coordinatesToShow)
+
+                removeMarkerAfterDelay(marker, 10000)
+            }
+
+            else{
+               // mMap.addMarker(MarkerOptions().position(nagarro).title("Default Location"))
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nagarro, 16F))
+               // addMarker(nagarro)
+            }
+
+
             // Handle the geofences list here
             for (geofence in geofences) {
-                Log.d("Happy", geofence.geofenceId)
+                Log.d("Already exixted Geofence List", geofence.geofenceId)
                 val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.apply()
                 val key = "${geofence.geofenceId}${geofence.userEmail}"
 
                 val isGeofenceExist = sharedPreferences.getString(key, null)
+                val id = geofence.geofenceId
                 val latLng = geofence.latLng;
                 val radius = geofence.geofenceRadius
 
-                if(isGeofenceExist != null){
-                    addMarker(latLng)
-                    addCircle(latLng, radius)
-                    Log.d(TAG, geofence.userEmail)
-                }else{
-                    addGeofence(latLng,radius)
-                    addMarker(latLng)
-                    addCircle(latLng, radius)
-                }
+//                if(isGeofenceExist != null){
+//                    Log.d("Already exixted Geofence List inside shpre", geofence.geofenceId)
+//                    addMarker(latLng)
+//                    addCircle(latLng, radius)
+//                    Log.d(TAG, geofence.userEmail)
+//                }else{
+//                    Log.d("Already exixted Geofence List not inside shpre", geofence.geofenceId)
+//                    addGeofence(latLng,radius)
+//                    addMarker(latLng)
+//                    addCircle(latLng, radius)
+//                }
+
+                addGeofence(id,latLng,radius, false)
+                addMarker(latLng)
+                addCircle(latLng, radius)
+
 
 
             }
         }
+    }
+
+    private fun removeMarkerAfterDelay(marker: Marker?, delayMillis: Long) {
+        object : CountDownTimer(delayMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Do something on tick if needed
+            }
+
+            override fun onFinish() {
+                marker?.remove()
+            }
+        }.start()
     }
 
     private fun getCustomLocationIcon(): Bitmap? {
@@ -397,9 +438,9 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
             }
         }
     }
-    private fun addGeofence(latLng: LatLng, radius: Double){
-        val id = System.currentTimeMillis()
-        val geofence: Geofence = geofencingHelper.getGeofence(id.toString(), latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+    private fun addGeofence(id: String, latLng: LatLng, radius: Double, timerFlag:Boolean){
+      //  val id = System.currentTimeMillis()
+        val geofence: Geofence = geofencingHelper.getGeofence(id, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
         val geofencingRequest : GeofencingRequest = geofencingHelper.getGeofencingRequest(geofence)
         val pendingIntent : PendingIntent = geofencingHelper.getPendingIntent()
 
@@ -408,20 +449,18 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
             return
         }
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
             .addOnSuccessListener { Log.d(TAG, "onSuccess: Geofence Added...")
+
                 geofenceList.add(geofence)
                 val entryDeadline = System.currentTimeMillis() + durationMinutes * 60 * 1000 // current time + duration in milliseconds
-                firestoreHelper.addGeofenceData(id.toString(), GEOFENCE_RADIUS, latLng, currUserEmail, entryDeadline)
+                if(timerFlag){
+                    firestoreHelper.addGeofenceData(id.toString(), GEOFENCE_RADIUS, latLng, currUserEmail, entryDeadline)
+                }
+
                 val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.apply()
@@ -430,42 +469,47 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
                 editor.putString(key, key) // Save device identifier if needed
                 editor.apply()
 
-                object : CountDownTimer((durationMinutes *60 *1000).toLong(), 1000) {
-                    override fun onTick(millisUntilFinished: Long) {
-                        // Do something every second if needed
-                    }
+                if(timerFlag){
 
-                    override fun onFinish() {
+                    object : CountDownTimer((durationMinutes *60 *1000).toLong(), 1000) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            // Do something every second if needed
+                        }
 
-                        var enteredFlag = false;
+                        override fun onFinish() {
 
-                        firestoreHelper.getGeofenceById(id.toString()){geofenceDoc->
+                            var enteredFlag = false;
 
-                            enteredFlag = geofenceDoc?.enteredFlag!!
+                            firestoreHelper.getGeofenceById(id.toString()){geofenceDoc->
 
-                            Log.d("Maps activity entered flag", enteredFlag.toString())
+                                enteredFlag = geofenceDoc?.enteredFlag!!
 
-                            if(!enteredFlag){
+                                Log.d("Maps activity entered flag", enteredFlag.toString())
 
-                                firestoreHelper.postTransitionEvents("No Event Happened", latLng, currUserEmail)
+                                if(!enteredFlag){
+
+                                    firestoreHelper.postTransitionEvents("No Event Happened", latLng, currUserEmail)
 //                            val notificationHelper = NotificationHelper(baseContext)
 //                            notificationHelper.sendHighPriorityNotification(
 //                                "No Transition Happened", "User $currUserEmail didn't entered into geofence in given time!!",
 //                                GeofenceMapsActivity::class.java,latLng
 //                            )
 
+                                }
+
                             }
 
+                            //   val entered =  firestoreHelper.getGeofencebyBool(id.toString())
+
+
+
+                            // Timer finished, check if user entered the geofence
+                            //  sendNotification(context, "No entry", "User did not enter the geofence within the specified time.")
                         }
+                    }.start()
+                }
 
-                    //   val entered =  firestoreHelper.getGeofencebyBool(id.toString())
 
-
-
-                        // Timer finished, check if user entered the geofence
-                        //  sendNotification(context, "No entry", "User did not enter the geofence within the specified time.")
-                    }
-                }.start()
 
             }
             .addOnFailureListener { e ->
@@ -536,7 +580,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
                 addMarker(latLng)
                 addCircle(latLng, GEOFENCE_RADIUS)
                 zoomOnMap(latLng)
-                addGeofence(latLng, GEOFENCE_RADIUS)
+                addGeofence(System.currentTimeMillis().toString(), latLng, GEOFENCE_RADIUS,true)
             }else{
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
                     ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
@@ -551,7 +595,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
             addMarker(latLng)
             addCircle(latLng, GEOFENCE_RADIUS)
             zoomOnMap(latLng)
-            addGeofence(latLng, GEOFENCE_RADIUS)
+            addGeofence(System.currentTimeMillis().toString(), latLng, GEOFENCE_RADIUS, true)
         }
 
 
