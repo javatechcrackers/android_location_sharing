@@ -112,8 +112,9 @@ class GroupActivity : AppCompatActivity() {
                     // Handle the selection as usual
                     if (position < sharedUsers.size) {
                         val selectedUser = sharedUsers[position]
-                       // val intent = Intent(this@GroupActivity, LocationActivity::class.java)
+                        val intent = Intent(this@GroupActivity, LocationActivity::class.java)
                         intent.putExtra("userId", selectedUser)
+                        intent.putStringArrayListExtra("activeUserIds", ArrayList(sharedUsers))
                         startActivity(intent)
                     } else {
                         Log.e("SpinnerSelection", "Selected position $position out of bounds for sharedUsers list of size ${sharedUsers.size}")
