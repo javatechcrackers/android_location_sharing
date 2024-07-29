@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -163,6 +164,28 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
         setupLocationUpdates()
 
+    }
+
+    override fun onResumeFragments() {
+        super.onResumeFragments()
+
+        val intent = intent
+        if (Intent.ACTION_VIEW == intent.action) {
+            val uri = intent.data
+            uri?.let {
+                val latitude = it.getQueryParameter("q")?.split(",")?.get(0)?.toDoubleOrNull()
+                val longitude = it.getQueryParameter("q")?.split(",")?.get(1)?.toDoubleOrNull()
+                if (latitude != null && longitude != null) {
+                    val nlatLng : LatLng = LatLng(latitude, longitude);
+                    // Use latitude and longitude
+                    mMap.addMarker(MarkerOptions().position(nlatLng).title("User Current Location"))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nlatLng, 16F))
+
+
+                    Log.d("Geofence Activity", "Location: $latitude, $longitude")
+                }
+            }
+        }
     }
 
 

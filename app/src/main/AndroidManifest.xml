@@ -47,9 +47,21 @@
 
         <activity
             android:name=".activities.GeofenceMapsActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_activity_geofence_maps"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="maps.google.com" android:pathPrefix="/maps"/>
+            </intent-filter>
+
+        </activity>
+
+
+
+
         <activity
             android:name=".activities.GroupActivity"
             android:exported="false" />
