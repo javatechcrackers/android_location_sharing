@@ -44,6 +44,7 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var btnSharedLocation: Button
     private lateinit var btnLogout : Button
     private lateinit var spinnerSharedLocations: Spinner
+    private lateinit var btnShareCurrentLocation : Button
     private lateinit var btnGeoFence: Button
     private lateinit var nameText : TextView
     private  var userName : String? = null
@@ -73,6 +74,7 @@ class GroupActivity : AppCompatActivity() {
         btnGeoFence = findViewById(R.id.btn_geo_fence)
         listGeoFenceUsers = findViewById(R.id.list_geo_fence_users)
         nameText = findViewById(R.id.tv_greetings)
+        btnShareCurrentLocation = findViewById(R.id.btn_share_current_location)
 
         // Set the flag when the user starts interacting with the spinner
         spinnerSharedLocations.setOnTouchListener { v, event ->
@@ -106,6 +108,10 @@ class GroupActivity : AppCompatActivity() {
             fetchSharedUsers()
         }
 
+        btnShareCurrentLocation.setOnClickListener {
+            shareCurrentLocation()
+        }
+
         spinnerSharedLocations.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 if (isUserInteractingWithSpinner  ) {
@@ -135,6 +141,41 @@ class GroupActivity : AppCompatActivity() {
             val intent = Intent(this, GeofenceMapsActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun shareCurrentLocation(){
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                1
+            )
+            return
+        }
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                location?.let {
+                   // shareLocation(it.latitude, it.longitude)
+
+                    val latitude : Double = it.latitude
+                    val longitude : Double = it.longitude
+
+                    val uri = "http://maps.google.com/maps?q=$latitude,$longitude"
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, "Check out my location: $uri")
+                        type = "text/plain"
+                    }
+                    startActivity(Intent.createChooser(shareIntent, "Share location via"))
+                }
+            }
     }
 
     private fun logoutUser() {
