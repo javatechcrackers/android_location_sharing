@@ -6,6 +6,7 @@ import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -45,12 +46,14 @@ import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
 import com.example.geofencelive.UtilityClasses.FirestoreHelper
 import com.example.geofencelive.UtilityClasses.NotificationHelper
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.tasks.Task
 
 class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap.OnMapLongClickListener{
 
@@ -67,6 +70,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
     lateinit var geofencingClient: GeofencingClient
     private lateinit var geofencingHelper: GeofenceHelper
     private lateinit var coordinatesToShow: LatLng
+    private lateinit var settingsClient: SettingsClient
 
 
     private val geofenceList = mutableListOf<Geofence>()
@@ -97,6 +101,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         currUserEmail = sharedPreferences.getString("userEmail", null).toString()
 
+        settingsClient = LocationServices.getSettingsClient(this)
         geofencingClient = LocationServices.getGeofencingClient(this)
         geofencingHelper = GeofenceHelper(this);
         firestoreHelper = FirestoreHelper()
@@ -164,6 +169,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         mapFragment.getMapAsync(this)
 
         setupLocationUpdates()
+       // checkLocationSettings()
 
     }
 
@@ -374,8 +380,8 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 //                }
 
                 addGeofence(id,latLng,radius, false)
-                addMarker(latLng)
-                addCircle(latLng, radius)
+               // addMarker(latLng)
+              //  addCircle(latLng, radius)
 
 
 
@@ -455,6 +461,12 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
             .addOnSuccessListener { Log.d(TAG, "onSuccess: Geofence Added...")
 
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
+                addMarker(latLng)
+                addCircle(latLng, GEOFENCE_RADIUS)
+                Toast.makeText(this, "Geofence Added ", Toast.LENGTH_LONG).show()
+               // zoomOnMap(latLng)
+
                 geofenceList.add(geofence)
                 val entryDeadline = System.currentTimeMillis() + durationMinutes * 60 * 1000 // current time + duration in milliseconds
                 if(timerFlag){
@@ -515,6 +527,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
             .addOnFailureListener { e ->
                 val errorMessage: String = geofencingHelper.getErrorString(e)
                 Log.d(TAG, "onFailure: $errorMessage")
+                Toast.makeText(this, "Enable all permissions and Location to add geofences", Toast.LENGTH_LONG).show()
             }
 
 
@@ -569,6 +582,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
     override fun onMapLongClick(latLng: LatLng) {
 
+        checkLocationSettings()
         if(Build.VERSION.SDK_INT >= 29){
             if(ActivityCompat.checkSelfPermission(
                     this,
@@ -576,10 +590,10 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
                 ) == PackageManager.PERMISSION_GRANTED)
             {
                // mMap.clear()
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
-                addMarker(latLng)
-                addCircle(latLng, GEOFENCE_RADIUS)
-                zoomOnMap(latLng)
+//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
+//                addMarker(latLng)
+//                addCircle(latLng, GEOFENCE_RADIUS)
+//                zoomOnMap(latLng)
                 addGeofence(System.currentTimeMillis().toString(), latLng, GEOFENCE_RADIUS,true)
             }else{
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
@@ -591,13 +605,62 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         }
         else{
            // mMap.clear()
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
-            addMarker(latLng)
-            addCircle(latLng, GEOFENCE_RADIUS)
-            zoomOnMap(latLng)
+//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
+//            addMarker(latLng)
+//            addCircle(latLng, GEOFENCE_RADIUS)
+//            zoomOnMap(latLng)
             addGeofence(System.currentTimeMillis().toString(), latLng, GEOFENCE_RADIUS, true)
         }
 
 
+    }
+
+    private fun checkLocationSettings() {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+
+        val locationSettingsRequest = builder.build()
+
+        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(locationSettingsRequest)
+
+        task.addOnSuccessListener { locationSettingsResponse ->
+            // All location settings are satisfied. The client can initialize location requests here.
+            Log.d("LocationSettings", "All location settings are satisfied.")
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                // Location settings are not satisfied, but this can be fixed by showing the user a dialog.
+                try {
+                    exception.startResolutionForResult(this, REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == RESULT_OK) {
+
+
+                // Location settings changed successfully.
+                Log.d("LocationSettings", "User enabled location settings.")
+            } else {
+                // User chose not to make required location settings changes.
+                Log.d("LocationSettings", "User did not enable location settings.")
+            }
+        }
+    }
+
+    companion object {
+        const val REQUEST_CHECK_SETTINGS = 100
     }
 }
