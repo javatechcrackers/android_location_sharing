@@ -334,7 +334,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
             val nagarro = LatLng(28.4916, 77.0745 )
 
             if(coordinatesToShow != nagarro){
-                val marker = mMap.addMarker(MarkerOptions().position(coordinatesToShow).title("User coordinates when geofence event occur"))
+                val marker = mMap.addMarker(MarkerOptions().position(coordinatesToShow).title("User coordinates when geofence event occur").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinatesToShow, 16F))
                // addMarker(coordinatesToShow)
 

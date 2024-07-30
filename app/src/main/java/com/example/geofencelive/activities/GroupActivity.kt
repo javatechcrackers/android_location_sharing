@@ -2,6 +2,8 @@ package com.example.geofencelive.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -23,9 +25,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.geofencelive.BroadcastReceivers.GeofenceBroadcastReceiver
 import com.example.geofencelive.R
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -54,6 +58,8 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var userAdapter: ArrayAdapter<String>
     private val sharedUsers = mutableListOf<String>()
     private var isUserInteractingWithSpinner = false
+
+    lateinit var geofencingClient: GeofencingClient
 
     @SuppressLint("MissingInflatedId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +95,7 @@ class GroupActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         databaseReference = FirebaseDatabase.getInstance().reference.child("locations")
 
+        geofencingClient = LocationServices.getGeofencingClient(this)
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         userName = sharedPreferences.getString("displayName", null)
 
@@ -143,6 +150,44 @@ class GroupActivity : AppCompatActivity() {
         }
     }
 
+    private fun removeAllGeofences(context: Context) {
+        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+            addOnSuccessListener {
+                // Geofences removed successfully
+                Log.d("Geofence Removed  ", "Geofences removed successfully")
+
+                val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.clear() // Clears all data from SharedPreferences
+                editor.apply() // Apply changes asynchronously
+
+                // Optional: Redirect user to the login screen or any other appropriate activity
+                val intent = Intent(context, LoginActivity::class.java)
+                startActivity(intent)
+                finish() // Close current activity
+            }
+            addOnFailureListener {
+                // Failed to remove geofences
+                Log.d("Geofence Removed  ", "Failed to remove geofences")
+            }
+        }
+    }
+
+    private val geofencePendingIntent: PendingIntent by lazy {
+
+        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        PendingIntent.getBroadcast(
+            this,
+            2607,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+
+
+       // val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        //PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    }
+
     private fun shareCurrentLocation(){
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -179,16 +224,18 @@ class GroupActivity : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        // Clear SharedPreferences data
-        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.clear() // Clears all data from SharedPreferences
-        editor.apply() // Apply changes asynchronously
 
-        // Optional: Redirect user to the login screen or any other appropriate activity
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-        finish() // Close current activity
+        removeAllGeofences(this)
+        // Clear SharedPreferences data
+//        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+//        val editor = sharedPreferences.edit()
+//        editor.clear() // Clears all data from SharedPreferences
+//        editor.apply() // Apply changes asynchronously
+//
+//        // Optional: Redirect user to the login screen or any other appropriate activity
+//        val intent = Intent(this, LoginActivity::class.java)
+//        startActivity(intent)
+//        finish() // Close current activity
     }
 
     private fun toggleVisibility(view: View) {
