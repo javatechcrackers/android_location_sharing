@@ -2,7 +2,10 @@ package com.example.geofencelive.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -23,13 +26,20 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.geofencelive.BroadcastReceivers.GeofenceBroadcastReceiver
 import com.example.geofencelive.R
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsResponse
+import com.google.android.gms.location.SettingsClient
+import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -54,6 +64,11 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var userAdapter: ArrayAdapter<String>
     private val sharedUsers = mutableListOf<String>()
     private var isUserInteractingWithSpinner = false
+    private val BACKGROUND_LOCATION_REQUEST_CODE = 10002;
+    private lateinit var settingsClient: SettingsClient
+
+
+    lateinit var geofencingClient: GeofencingClient
 
     @SuppressLint("MissingInflatedId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +104,8 @@ class GroupActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         databaseReference = FirebaseDatabase.getInstance().reference.child("locations")
 
+        geofencingClient = LocationServices.getGeofencingClient(this)
+        settingsClient = LocationServices.getSettingsClient(this)
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         userName = sharedPreferences.getString("displayName", null)
 
@@ -138,9 +155,96 @@ class GroupActivity : AppCompatActivity() {
         }
 
         btnGeoFence.setOnClickListener {
-            val intent = Intent(this, GeofenceMapsActivity::class.java)
-            startActivity(intent)
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED &&  ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                    1
+                )
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    BACKGROUND_LOCATION_REQUEST_CODE
+                )
+
+            }
+
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED &&  ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+            ) {
+
+               // val intent = Intent(this, GeofenceMapsActivity::class.java)
+              //  startActivity(intent)
+
+                checkLocationSettings()
+
+            }else{
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+                    ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
+                }else{
+                    ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
+                }
+                Toast.makeText(this, "Please give location permission", Toast.LENGTH_LONG).show()
+            }
+
+
+
         }
+    }
+
+    private fun removeAllGeofences(context: Context) {
+        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+            addOnSuccessListener {
+                // Geofences removed successfully
+                Log.d("Geofence Removed  ", "Geofences removed successfully")
+
+                val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.clear() // Clears all data from SharedPreferences
+                editor.apply() // Apply changes asynchronously
+
+                // Optional: Redirect user to the login screen or any other appropriate activity
+                val intent = Intent(context, LoginActivity::class.java)
+                startActivity(intent)
+                finish() // Close current activity
+            }
+            addOnFailureListener {
+                // Failed to remove geofences
+                Log.d("Geofence Removed  ", "Failed to remove geofences")
+            }
+        }
+    }
+
+    private val geofencePendingIntent: PendingIntent by lazy {
+
+        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        PendingIntent.getBroadcast(
+            this,
+            2607,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+
+
+       // val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        //PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     private fun shareCurrentLocation(){
@@ -179,16 +283,18 @@ class GroupActivity : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        // Clear SharedPreferences data
-        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.clear() // Clears all data from SharedPreferences
-        editor.apply() // Apply changes asynchronously
 
-        // Optional: Redirect user to the login screen or any other appropriate activity
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-        finish() // Close current activity
+        removeAllGeofences(this)
+        // Clear SharedPreferences data
+//        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+//        val editor = sharedPreferences.edit()
+//        editor.clear() // Clears all data from SharedPreferences
+//        editor.apply() // Apply changes asynchronously
+//
+//        // Optional: Redirect user to the login screen or any other appropriate activity
+//        val intent = Intent(this, LoginActivity::class.java)
+//        startActivity(intent)
+//        finish() // Close current activity
     }
 
     private fun toggleVisibility(view: View) {
@@ -281,5 +387,57 @@ class GroupActivity : AppCompatActivity() {
                 // Handle possible errors
             }
         })
+    }
+
+    private fun checkLocationSettings() {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+
+        val locationSettingsRequest = builder.build()
+
+        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(locationSettingsRequest)
+
+        task.addOnSuccessListener { locationSettingsResponse ->
+            val intent = Intent(this, GeofenceMapsActivity::class.java)
+            startActivity(intent)
+
+            // All location settings are satisfied. The client can initialize location requests here.
+            Log.d("LocationSettings", "All location settings are satisfied.")
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                // Location settings are not satisfied, but this can be fixed by showing the user a dialog.
+                try {
+                    exception.startResolutionForResult(this, REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == RESULT_OK) {
+                val intent = Intent(this, GeofenceMapsActivity::class.java)
+                 startActivity(intent)
+                // Location settings changed successfully.
+                Log.d("LocationSettings", "User enabled location settings.")
+            } else {
+                // User chose not to make required location settings changes.
+                Log.d("LocationSettings", "User did not enable location settings.")
+            }
+        }
+    }
+
+    companion object {
+        const val REQUEST_CHECK_SETTINGS = 100
     }
 }

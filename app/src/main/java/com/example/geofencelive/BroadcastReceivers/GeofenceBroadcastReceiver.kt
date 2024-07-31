@@ -50,7 +50,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
             val geofenceList : MutableList<Geofence>? = geofencingEvent.triggeringGeofences;
             for (geofence in geofenceList!!) {
-                Log.d(TAG, "onReceive: geofence list" + geofence.requestId)
+                Log.d(TAG, "onReceive: geofence list  $userEmail " + geofence.requestId)
 
                 val geofenceId = geofence.requestId
 
