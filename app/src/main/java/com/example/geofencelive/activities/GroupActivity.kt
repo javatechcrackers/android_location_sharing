@@ -189,10 +189,6 @@ class GroupActivity : AppCompatActivity() {
                     this,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
             ) {
-
-               // val intent = Intent(this, GeofenceMapsActivity::class.java)
-              //  startActivity(intent)
-
                 checkLocationSettings()
 
             }else{
@@ -212,18 +208,17 @@ class GroupActivity : AppCompatActivity() {
     private fun removeAllGeofences(context: Context) {
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener {
-                // Geofences removed successfully
+
                 Log.d("Geofence Removed  ", "Geofences removed successfully")
 
                 val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
-                editor.clear() // Clears all data from SharedPreferences
-                editor.apply() // Apply changes asynchronously
+                editor.clear()
+                editor.apply()
 
-                // Optional: Redirect user to the login screen or any other appropriate activity
                 val intent = Intent(context, LoginActivity::class.java)
                 startActivity(intent)
-                finish() // Close current activity
+                finish()
             }
             addOnFailureListener {
                 // Failed to remove geofences
