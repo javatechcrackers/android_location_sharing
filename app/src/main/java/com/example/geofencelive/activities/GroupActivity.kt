@@ -237,8 +237,8 @@ class GroupActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun requestLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
-            interval = 5000 // 5 seconds
-            fastestInterval = 2000 // 2 seconds
+            interval = 5000
+            fastestInterval = 2000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -269,8 +269,10 @@ class GroupActivity : AppCompatActivity() {
                 userAdapter.clear()
                 dataSnapshot.children.forEach { snapshot ->
                     val userId = snapshot.key ?: return@forEach
-                    sharedUsers.add(userId);
-                    userAdapter.add(userId)
+                    if(userId != userName){
+                        sharedUsers.add(userId);
+                        userAdapter.add(userId)
+                    }
                 }
                 userAdapter.notifyDataSetChanged()
             }

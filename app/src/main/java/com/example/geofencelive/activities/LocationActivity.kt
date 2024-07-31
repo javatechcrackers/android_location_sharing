@@ -1,11 +1,17 @@
 package com.example.geofencelive.activities
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.geofencelive.R
@@ -13,6 +19,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
@@ -120,18 +128,17 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback  {
 
         if (marker == null) {
             // Add a new marker if it doesn't exist
-            val markerOptions = MarkerOptions().position(userLatLng).title(userId)
+            val markerOptions = MarkerOptions()
+                .position(userLatLng)
+                .icon(createCustomMarker(this, userId ?: ""))
+//                .title(userId)
             val newMarker = mMap.addMarker(markerOptions)
             if (newMarker != null) {
                 userMarkers[userId!!] = newMarker
             }
         } else {
-            // Update the position of the existing marker
             marker.position = userLatLng
         }
-
-        // Optionally, move the camera to the user's location
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 17f))
         adjustZoom()
     }
 
@@ -151,5 +158,20 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback  {
                 mMap.animateCamera(cu)
             }
         }
+    }
+
+    private fun createCustomMarker(context: Context, userName: String): BitmapDescriptor {
+        val markerView = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.custom_marker, null)
+        val markerTextView = markerView.findViewById<TextView>(R.id.marker_text)
+        markerTextView.text = userName
+
+        markerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        markerView.layout(0, 0, markerView.measuredWidth, markerView.measuredHeight)
+
+        val bitmap = Bitmap.createBitmap(markerView.measuredWidth, markerView.measuredHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        markerView.draw(canvas)
+
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 }
