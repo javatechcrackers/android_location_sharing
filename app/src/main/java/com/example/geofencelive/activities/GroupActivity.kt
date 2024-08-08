@@ -3,10 +3,12 @@ package com.example.geofencelive.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.graphics.drawable.BitmapDrawable
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.graphics.Shader
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +27,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -84,6 +87,8 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var geofenceEventAdapter: NotificationAdapter
     private lateinit var geofenceEventList: MutableList<GeofenceTransitionModel>
     private val db = FirebaseFirestore.getInstance()
+    private lateinit var blurOverlay: View
+    private lateinit var rootView: ConstraintLayout
 
 
 
@@ -115,6 +120,8 @@ class GroupActivity : AppCompatActivity() {
         geofenceEventAdapter = NotificationAdapter(geofenceEventList)
         recyclerView.adapter = geofenceEventAdapter
 
+        rootView = findViewById(R.id.groupscreen)
+        blurOverlay = findViewById(R.id.blurOverlay)
         fetchGeofenceEvents()
 
         btnLiveTracking = findViewById(R.id.btn_live_tracking)
@@ -139,10 +146,12 @@ class GroupActivity : AppCompatActivity() {
         spinnerSharedLocations.adapter = userAdapter
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        settingsClient = LocationServices.getSettingsClient(this)
+
         databaseReference = FirebaseDatabase.getInstance().reference.child("locations")
 
         geofencingClient = LocationServices.getGeofencingClient(this)
-        settingsClient = LocationServices.getSettingsClient(this)
+
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         userName = sharedPreferences.getString("displayName", null)
 
@@ -164,6 +173,9 @@ class GroupActivity : AppCompatActivity() {
         btnLiveTracking.setOnClickListener {
             toggleVisibility(layoutLiveTrackingOptions)
             listGeoFenceUsers.visibility = View.GONE
+
+         //  toggleVisibility(spinnerSharedLocations)
+         //   fetchSharedUsers()
         }
 
         btnShareLocation.setOnClickListener {
@@ -175,11 +187,29 @@ class GroupActivity : AppCompatActivity() {
             fetchSharedUsers()
         }
 
-        btnShareCurrentLocation.setOnClickListener {
-            shareCurrentLocation()
+        val geofenceclickListener = View.OnClickListener { view ->
+            checkLocationRequestSettings(view)
         }
 
+        btnGeoFence.setOnClickListener(geofenceclickListener)
+      btnShareCurrentLocation.setOnClickListener(geofenceclickListener)
+
+//        btnShareCurrentLocation.setOnClickListener{
+//            shareCurrentLocation()
+//        }
+
+//        btnShareCurrentLocation.setOnClickListener {
+//            checkLocationSettings(c)
+//        }
+//
+//        btnGeoFence.setOnClickListener {
+//
+//
+//
+//        }
+
         spinnerSharedLocations.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 if (isUserInteractingWithSpinner  ) {
                     // Handle the selection as usual
@@ -204,55 +234,7 @@ class GroupActivity : AppCompatActivity() {
             logoutUser()
         }
 
-        btnGeoFence.setOnClickListener {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED &&  ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-                    1
-                )
 
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    BACKGROUND_LOCATION_REQUEST_CODE
-                )
-
-            }
-
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED &&  ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-            ) {
-                checkLocationSettings()
-
-            }else{
-                if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
-                    ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
-                }else{
-                    ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
-                }
-                Toast.makeText(this, "Please give location permission", Toast.LENGTH_LONG).show()
-            }
-
-
-
-        }
     }
 
     private fun fetchGeofenceEvents(){
@@ -286,8 +268,7 @@ class GroupActivity : AppCompatActivity() {
                 Log.w("GroupActivity", "Error getting documents: ", exception)
             }
     }
-
-    private fun removeAllGeofences(context: Context) {
+        private fun removeAllGeofences(context: Context) {
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener {
 
@@ -324,41 +305,6 @@ class GroupActivity : AppCompatActivity() {
         //PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
-    private fun shareCurrentLocation(){
-        Toast.makeText(this, "Clicked", Toast.LENGTH_LONG).show()
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-                1
-            )
-            return
-        }
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                location?.let {
-                   // shareLocation(it.latitude, it.longitude)
-
-                    val latitude : Double = it.latitude
-                    val longitude : Double = it.longitude
-
-                    val uri = "http://maps.google.com/maps?q=$latitude,$longitude"
-                    val shareIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, "Check out my location: $uri")
-                        type = "text/plain"
-                    }
-                    startActivity(Intent.createChooser(shareIntent, "Share location via"))
-                }
-            }
-    }
 
     private fun logoutUser() {
 
@@ -467,7 +413,27 @@ class GroupActivity : AppCompatActivity() {
         })
     }
 
-    private fun checkLocationSettings() {
+
+
+    private fun shareCurrentLocation(){
+
+        Toast.makeText(this, "Clicked", Toast.LENGTH_LONG).show()
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                1
+            )
+            return
+        }
+
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
@@ -476,13 +442,30 @@ class GroupActivity : AppCompatActivity() {
             .addLocationRequest(locationRequest)
             .setAlwaysShow(true)
 
-        val locationSettingsRequest = builder.build()
+        val locationSettingsRequestN = builder.build()
 
-        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(locationSettingsRequest)
+        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(locationSettingsRequestN)
 
         task.addOnSuccessListener { locationSettingsResponse ->
-            val intent = Intent(this, GeofenceMapsActivity::class.java)
-            startActivity(intent)
+
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    location?.let {
+                        // shareLocation(it.latitude, it.longitude)
+
+                        val latitude : Double = it.latitude
+                        val longitude : Double = it.longitude
+
+                        val uri = "http://maps.google.com/maps?q=$latitude,$longitude"
+                        val shareIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, "Check out my location: $uri")
+                            type = "text/plain"
+                        }
+                        startActivity(Intent.createChooser(shareIntent, "Share location via"))
+                    }
+                }
+
 
             // All location settings are satisfied. The client can initialize location requests here.
             Log.d("LocationSettings", "All location settings are satisfied.")
@@ -498,14 +481,315 @@ class GroupActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
+
+//    private fun checkLocationRequestSettings(view: View) {
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED &&  ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+//                1
+//            )
+//
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+//                BACKGROUND_LOCATION_REQUEST_CODE
+//            )
+//
+//        }
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) == PackageManager.PERMISSION_GRANTED &&  ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+//        ) {
+//
+//
+//        }else{
+//            if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+//                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
+//            }else{
+//                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE)
+//            }
+//            Toast.makeText(this, "Please give location permission", Toast.LENGTH_LONG).show()
+//        }
+//
+//
+//
+//        val locationRequest = LocationRequest.create().apply {
+//            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+//        }
+//
+//        val builder = LocationSettingsRequest.Builder()
+//            .addLocationRequest(locationRequest)
+//            .setAlwaysShow(true)
+//
+//        val locationSettingsRequest = builder.build()
+//        val client: SettingsClient = LocationServices.getSettingsClient(this)
+//        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(locationSettingsRequest)
+//
+//        task.addOnSuccessListener { locationSettingsResponse ->
+//
+//            if(view.id == R.id.btn_geo_fence){
+//
+//                Toast.makeText(this, "CLicked on geofence", Toast.LENGTH_LONG).show()
+//                val intent = Intent(this, GeofenceMapsActivity::class.java)
+//                startActivity(intent)
+//            }
+//
+//            if(view.id == R.id.btn_share_current_location){
+//              //  Toast.makeText(this, "CLicked on sharecurrent", Toast.LENGTH_LONG).show()
+//                fusedLocationClient.lastLocation
+//                    .addOnSuccessListener { location: Location? ->
+////                        if(location == null){
+////                            Toast.makeText(this, "SOme error occured!!", Toast.LENGTH_LONG).show()
+////                        }
+//
+//                        if(location != null){
+//                            location?.let {
+//                                // shareLocation(it.latitude, it.longitude)
+//
+//                                val latitude : Double = it.latitude
+//                                val longitude : Double = it.longitude
+//
+//                                val uri = "http://maps.google.com/maps?q=$latitude,$longitude"
+//                                val shareIntent = Intent().apply {
+//                                    action = Intent.ACTION_SEND
+//                                    putExtra(Intent.EXTRA_TEXT, "Check out my location: $uri")
+//                                    type = "text/plain"
+//                                }
+//                                startActivity(Intent.createChooser(shareIntent, "Share location via"))
+//                            }
+//                        }else{
+//                            // Request location updates
+//                            val locationCallback = object : LocationCallback() {
+//                                override fun onLocationResult(locationResult: LocationResult?) {
+//                                    locationResult ?: return
+//                                    for (location in locationResult.locations) {
+//                                        Log.d("Geofence", location.toString())
+//                                        // Use the location here
+//                                        val latitude = location.latitude
+//                                        val longitude = location.longitude
+//
+//                                        val uri = "http://maps.google.com/maps?q=$latitude,$longitude"
+//                                        val shareIntent = Intent().apply {
+//                                            action = Intent.ACTION_SEND
+//                                            putExtra(Intent.EXTRA_TEXT, "Check out my location: $uri")
+//                                            type = "text/plain"
+//                                        }
+//                                        startActivity(Intent.createChooser(shareIntent, "Share location via"))
+//                                        fusedLocationClient.removeLocationUpdates(this)
+//                                    }
+//                                }
+//                            }
+//
+//                            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+//                        }
+//
+//
+//
+//
+//                    }.addOnFailureListener {it->
+//                        Toast.makeText(this, "Some error occured, Please try again later ${it.message}", Toast.LENGTH_LONG).show()
+//
+//                    }
+//
+//            }
+//
+//
+//            // All location settings are satisfied. The client can initialize location requests here.
+//            Log.d("LocationSettings", "All location settings are satisfied.")
+//        }
+//
+//        task.addOnFailureListener { exception ->
+//            if (exception is ResolvableApiException) {
+//                // Location settings are not satisfied, but this can be fixed by showing the user a dialog.
+//                try {
+//                    exception.startResolutionForResult(this, REQUEST_CHECK_SETTINGS)
+//                } catch (sendEx: IntentSender.SendIntentException) {
+//                    // Ignore the error.
+//                }
+//            }
+//        }
+//    }
+
+    private fun checkLocationRequestSettings(view: View) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                1
+            )
+
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                BACKGROUND_LOCATION_REQUEST_CODE
+            )
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Permissions are granted
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    BACKGROUND_LOCATION_REQUEST_CODE
+                )
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    BACKGROUND_LOCATION_REQUEST_CODE
+                )
+            }
+            Toast.makeText(this, "Please give location permission", Toast.LENGTH_LONG).show()
+        }
+
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+
+        val locationSettingsRequest = builder.build()
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(locationSettingsRequest)
+
+        task.addOnSuccessListener { locationSettingsResponse ->
+            if (view.id == R.id.btn_geo_fence) {
+               // Toast.makeText(this, "Clicked on geofence", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, GeofenceMapsActivity::class.java)
+                startActivity(intent)
+            }
+
+            if (view.id == R.id.btn_share_current_location) {
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        if (location != null) {
+                            location?.let {
+                                val latitude: Double = it.latitude
+                                val longitude: Double = it.longitude
+
+                                val uri = "http://maps.google.com/maps?q=$latitude,$longitude"
+                                val shareIntent = Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    putExtra(Intent.EXTRA_TEXT, "Check out my location: $uri")
+                                    type = "text/plain"
+                                }
+                                startActivity(Intent.createChooser(shareIntent, "Share location via"))
+                            }
+                        } else {
+                            Toast.makeText(this, "We are processing your request. Please wait!!", Toast.LENGTH_LONG).show()
+                            val locationCallback = object : LocationCallback() {
+                                override fun onLocationResult(locationResult: LocationResult) {
+                                    locationResult ?: return
+                                    for (location in locationResult.locations) {
+                                        Log.d("Geofence", location.toString())
+                                        val latitude = location.latitude
+                                        val longitude = location.longitude
+
+                                        val uri = "http://maps.google.com/maps?q=$latitude,$longitude"
+                                        val shareIntent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_TEXT, "Check out my location: $uri")
+                                            type = "text/plain"
+                                        }
+                                        startActivity(Intent.createChooser(shareIntent, "Share location via"))
+                                        fusedLocationClient.removeLocationUpdates(this)
+                                    }
+                                }
+                            }
+                            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+                        }
+                    }.addOnFailureListener {
+                        Toast.makeText(this, "Some error occurred, Please try again later ${it.message}", Toast.LENGTH_LONG).show()
+                    }
+            }
+            Log.d("LocationSettings", "All location settings are satisfied.")
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(this, REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
+            }
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CHECK_SETTINGS) {
             if (resultCode == RESULT_OK) {
-                val intent = Intent(this, GeofenceMapsActivity::class.java)
-                 startActivity(intent)
+
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        Log.d("last location", location.toString())
+                    }
+//                val intent = Intent(this, GeofenceMapsActivity::class.java)
+//                 startActivity(intent)
                 // Location settings changed successfully.
                 Log.d("LocationSettings", "User enabled location settings.")
             } else {

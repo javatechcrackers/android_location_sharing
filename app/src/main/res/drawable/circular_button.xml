@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#FFF" /> <!-- Button color -->
+    <solid android:color="@color/white" /> <!-- Button color -->
     <corners android:radius="50dp" /> <!-- Adjust the radius to make it circular -->
     <size
         android:width="50dp"

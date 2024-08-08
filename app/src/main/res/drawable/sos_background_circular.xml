@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:startColor="#FF3434"
+        android:endColor="#E0B122"
+        android:type="linear" /> <!-- Button color -->
+    <corners android:radius="50dp" /> <!-- Adjust the radius to make it circular -->
+    <size
+        android:width="50dp"
+        android:height="50dp" /> <!-- Set desired size -->
+</shape>

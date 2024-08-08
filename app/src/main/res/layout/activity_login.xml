@@ -1,4 +1,3 @@
-<!--
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -83,133 +82,135 @@
             android:background="#008CBA"
             android:textColor="@color/white" />
 
-&lt;!&ndash;        <TextView&ndash;&gt;
-&lt;!&ndash;            android:id="@+id/btnSignUp"&ndash;&gt;
-&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;
-&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;
-&lt;!&ndash;            android:layout_marginTop="24dp"&ndash;&gt;
-&lt;!&ndash;            android:text="Don't have an account? Signup"&ndash;&gt;
-&lt;!&ndash;            android:textAlignment="center"&ndash;&gt;
-&lt;!&ndash;            android:textColor="@color/black" />&ndash;&gt;
+<!--        <TextView-->
+<!--            android:id="@+id/btnSignUp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="24dp"-->
+<!--            android:text="Don't have an account? Signup"-->
+<!--            android:textAlignment="center"-->
+<!--            android:textColor="@color/black" />-->
     </LinearLayout>
 
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>-->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/login_page_background">
+</androidx.constraintlayout.widget.ConstraintLayout>
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:background="@drawable/login_page_background"-->
+<!--    android:id="@+id/loginmain"-->
+<!--    >-->
 
-    <!-- Background ImageView to cover the whole screen -->
-    <ImageView
-        android:id="@+id/background_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/login_page_background" />
+<!--    &lt;!&ndash; Background ImageView to cover the whole screen &ndash;&gt;-->
+<!--    <ImageView-->
+<!--        android:id="@+id/background_image"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/login_page_background" />-->
 
-    <!-- Logo -->
-    <ImageView
-        android:id="@+id/logo_tracker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
-        android:src="@drawable/logo_tracker" />
+<!--    &lt;!&ndash; Logo &ndash;&gt;-->
+<!--    <ImageView-->
+<!--        android:id="@+id/logo_tracker"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="40dp"-->
+<!--        android:src="@drawable/logo_tracker" />-->
 
-    <!-- User ID Input -->
-    <EditText
-        android:id="@+id/editTextUserId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/logo_tracker"
-        android:layout_marginTop="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:hint="Enter User ID"
-        android:background="@drawable/custom_edittext_background"
-        android:padding="10dp"
-        android:textColor="@android:color/white"
-        android:hintTextColor="@android:color/darker_gray" />
+<!--    &lt;!&ndash; User ID Input &ndash;&gt;-->
+<!--    <EditText-->
+<!--        android:id="@+id/editTextUserId"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/logo_tracker"-->
+<!--        android:layout_marginTop="40dp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:hint="Enter User ID"-->
+<!--        android:background="@drawable/custom_edittext_background"-->
+<!--        android:padding="10dp"-->
+<!--        android:textColor="@android:color/white"/>-->
+<!--&lt;!&ndash;        android:hintTextColor="@android:color/darker_gray" />&ndash;&gt;-->
 
-    <!-- Password Input -->
-    <EditText
-        android:id="@+id/editTextPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editTextUserId"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:hint="Enter your password"
-        android:background="@drawable/custom_edittext_background"
-        android:padding="10dp"
-        android:textColor="@android:color/white"
-        android:hintTextColor="@android:color/darker_gray"
-        android:inputType="textPassword" />
+<!--    &lt;!&ndash; Password Input &ndash;&gt;-->
+<!--    <EditText-->
+<!--        android:id="@+id/editTextPassword"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/editTextUserId"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:hint="Enter your password"-->
+<!--        android:background="@drawable/custom_edittext_background"-->
+<!--        android:padding="10dp"-->
+<!--        android:textColor="@android:color/white"-->
 
-    <!-- Remember Me Checkbox -->
-    <CheckBox
-        android:id="@+id/checkBoxRememberMe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editTextPassword"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="16dp"
-        android:text="Remember me"
-        android:textColor="@android:color/white" />
+<!--        android:inputType="textPassword" />-->
 
-    <!-- Forgot Password Text -->
-    <TextView
-        android:id="@+id/textViewForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/editTextPassword"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="16dp"
-        android:text="Forgot Password?"
-        android:textColor="@android:color/holo_orange_light" />
+<!--    &lt;!&ndash; Remember Me Checkbox &ndash;&gt;-->
+<!--    <CheckBox-->
+<!--        android:id="@+id/checkBoxRememberMe"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/editTextPassword"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:text="Remember me"-->
+<!--        android:textColor="@android:color/white" />-->
 
-    <!-- Google and Apple Login Buttons in a Horizontal LinearLayout -->
-    <LinearLayout
-        android:id="@+id/ll_login_icons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/checkBoxRememberMe"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
-        android:orientation="horizontal">
+<!--    &lt;!&ndash; Forgot Password Text &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/textViewForgotPassword"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentEnd="true"-->
+<!--        android:layout_below="@id/editTextPassword"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:text="Forgot Password?"-->
+<!--        android:textColor="@android:color/holo_orange_light" />-->
 
-        <!-- Google Login Button -->
-        <ImageView
-            android:id="@+id/buttonGoogleLogin"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/google_icon"
-            android:layout_marginEnd="20dp" />
+<!--    &lt;!&ndash; Google and Apple Login Buttons in a Horizontal LinearLayout &ndash;&gt;-->
+<!--    <LinearLayout-->
+<!--        android:id="@+id/ll_login_icons"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/checkBoxRememberMe"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="40dp"-->
+<!--        android:orientation="horizontal">-->
 
-        <!-- Apple Login Button -->
-        <ImageView
-            android:id="@+id/buttonAppleLogin"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/apple_icon" />
-    </LinearLayout>
+<!--        &lt;!&ndash; Google Login Button &ndash;&gt;-->
+<!--        <ImageView-->
+<!--            android:id="@+id/buttonGoogleLogin"-->
+<!--            android:layout_width="50dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:src="@drawable/google_icon"-->
+<!--            android:layout_marginEnd="20dp" />-->
 
-    <!-- Or Login Using Text -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ll_login_icons"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="Or Login Using"
-        android:textColor="@android:color/white"
-        tools:ignore="NotSibling" />
-</RelativeLayout>
+<!--        &lt;!&ndash; Apple Login Button &ndash;&gt;-->
+<!--        <ImageView-->
+<!--            android:id="@+id/buttonAppleLogin"-->
+<!--            android:layout_width="50dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:src="@drawable/apple_icon" />-->
+<!--    </LinearLayout>-->
+
+<!--    &lt;!&ndash; Or Login Using Text &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/ll_login_icons"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:text="Or Login Using"-->
+<!--        android:textColor="@android:color/white"-->
+<!--        tools:ignore="NotSibling" />-->
+<!--</RelativeLayout>-->
 
 
 

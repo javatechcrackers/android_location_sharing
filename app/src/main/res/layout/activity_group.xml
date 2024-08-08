@@ -9,6 +9,17 @@
     android:background="@drawable/homegradient"
     >
 
+    <View
+        android:id="@+id/blurOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <LinearLayout
         android:id="@+id/action_bar"
         android:layout_width="match_parent"
@@ -120,7 +131,7 @@
                 android:scaleType="fitCenter"
                 android:layout_marginBottom="10dp"
 
-                android:background="@drawable/circular_button"
+                android:background="@drawable/circular_image"
 
                 />
 
@@ -151,7 +162,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/icon2"
-                android:background="@drawable/circular_button"
+                android:background="@drawable/circular_image"
                 android:scaleType="fitCenter"
 
                 android:layout_marginBottom="10dp"
@@ -183,7 +194,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/icon3"
-                android:background="@drawable/circular_button"
+                android:background="@drawable/circular_image"
                 android:scaleType="fitCenter"
                 android:layout_marginBottom="10dp"
 
@@ -210,38 +221,58 @@
 
     <LinearLayout
         android:id="@+id/layout_live_tracking_options"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:padding="20dp"
         app:layout_constraintTop_toBottomOf="@id/action_buttons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:elevation="10dp"
+        android:gravity="center"
+        android:background="@drawable/gradientbg_2"
         android:visibility="gone">
+
+
 
         <Button
             android:id="@+id/btn_share_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Share Location"
-            android:layout_gravity="center_horizontal" />
+            android:text="Give Permission"
+            android:padding="10dp"
+           android:background="@drawable/circular_button_yellow"
+
+           />
 
         <Button
             android:id="@+id/btn_shared_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Shared Location"
-            android:layout_gravity="center_horizontal" />
+            android:text="User List"
+            android:padding="10dp"
+           android:background="@drawable/circular_button_yellow"
+            android:layout_marginTop="10dp"
+            />
 
         <!-- Dropdown for Shared Location -->
+
         <Spinner
             android:id="@+id/spinnerSharedLocations"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="20dp"
             android:layout_gravity="center_horizontal"
             android:visibility="gone"
             android:background="#535278"
             android:elevation="14dp"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+
+            />
+
     </LinearLayout>
+
+
 
     <ListView
             android:id="@+id/list_geo_fence_users"
@@ -259,7 +290,6 @@
         android:layout_height="wrap_content"
         android:text="Activity and Alerts"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
         android:paddingHorizontal="20dp"
         android:textColor="@color/white"
         android:textSize="20sp"
@@ -268,180 +298,391 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/action_buttons"
 
+
         />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notification_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_activity_alerts"
-        app:layout_constraintBottom_toTopOf="@+id/family_member"
+        android:layout_height="250dp"
+        android:background="@drawable/gradientbg_2"
         android:paddingHorizontal="25dp"
         android:paddingVertical="10dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/gradientbg_2"
-        >
+        app:layout_constraintBottom_toTopOf="@+id/my_groups"
+
+        app:layout_constraintTop_toBottomOf="@id/tv_activity_alerts"
+        app:layout_constraintVertical_bias="0.231"
+        tools:layout_editor_absoluteX="0dp">
 
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <LinearLayout
-        android:id="@+id/family_member"
+    <TextView
+        android:id="@+id/tv_mygroups"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:text="My Groups"
+        android:layout_marginTop="15dp"
+        android:paddingHorizontal="20dp"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/my_groups"
+        app:layout_constraintTop_toBottomOf="@id/notification_recyclerView"
+
+
+        />
+
+    <ScrollView
+        android:id="@+id/my_groups"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notification_recyclerView"
+        app:layout_constraintTop_toBottomOf="@id/tv_mygroups"
         app:layout_constraintBottom_toTopOf="@id/homebottomNavigationView"
+
+
         >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Family Members"
-            android:layout_marginTop="15dp"
-            android:paddingHorizontal="20dp"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold"
-
-            />
-
 
         <LinearLayout
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="10dp"
-            android:paddingHorizontal="20dp"
-            >
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TableLayout
+
+
+            <LinearLayout
+                android:id="@+id/family_member"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:stretchColumns="1"
-               android:paddingHorizontal="30dp"
-
+                android:orientation="vertical"
                 >
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:layout_width="65dp"
-                            android:layout_height="65dp"
-                            android:src="@drawable/media_harish"
-                            app:civ_border_width="2dp"
-                            app:civ_border_color="#FF000000"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Harish"
-                            android:textSize="15sp"
-                            android:textColor="@color/white"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:layout_width="65dp"
-                            android:layout_height="65dp"
-                            android:src="@drawable/media_prashant"
-                            app:civ_border_width="2dp"
-                            app:civ_border_color="#FF000000"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Prashant"
-                            android:textSize="15sp"
-                            android:textColor="@color/white"/>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:layout_width="65dp"
-                            android:layout_height="65dp"
-                            android:src="@drawable/media_ashutosh"
-                            app:civ_border_width="2dp"
-                            app:civ_border_color="#FF000000"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Ashutosh"
-                            android:textSize="15sp"
-                            android:textColor="@color/white"/>
-                    </LinearLayout>
-
-                </TableRow>
-
-                <TableRow
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:text="My Family"
+                    android:layout_marginTop="10dp"
+                    android:paddingHorizontal="23dp"
+                    android:textColor="@color/yellow_dark"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+
+                    />
+
+
+                <LinearLayout
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:paddingHorizontal="20dp"
                     >
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    <TableLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:stretchColumns="1"
+                        android:paddingHorizontal="30dp"
 
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:layout_width="65dp"
-                            android:layout_height="65dp"
-                            android:src="@drawable/media_rohit"
-                            app:civ_border_width="2dp"
-                            app:civ_border_color="#FF000000"/>
-                        <TextView
-                            android:layout_width="wrap_content"
+                        >
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_harish"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Harish"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_prashant"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Prashant"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_ashutosh"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Ashutosh"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Rohit"
-                            android:textSize="15sp"
-                            android:textColor="@color/white"/>
-                    </LinearLayout>
+                            android:layout_marginTop="20dp"
+                            >
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_rohit"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Rohit"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="60dp"
+                                    android:layout_height="60dp"
+                                    android:src="@drawable/baseline_add_24"
+                                    app:civ_border_width="2dp"
+                                    android:layout_marginBottom="7dp"
+                                    app:civ_border_color="#D9B122"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Add Member"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                        </TableRow>
+
+                    </TableLayout>
+
+                </LinearLayout>
+
+
+
+
+
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/friends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="My Friends"
+                    android:layout_marginTop="10dp"
+                    android:paddingHorizontal="23dp"
+                    android:textColor="@color/yellow_dark"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+
+                    />
+
+
+                <LinearLayout
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:paddingHorizontal="20dp"
+                    >
+
+                    <TableLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:stretchColumns="1"
+                        android:paddingHorizontal="30dp"
 
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
-                            android:src="@drawable/baseline_add_24"
-                            app:civ_border_width="2dp"
-                            android:layout_marginBottom="7dp"
-                            app:civ_border_color="#D9B122"/>
-                        <TextView
-                            android:layout_width="wrap_content"
+                        >
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_harish"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Harish"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_prashant"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Prashant"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_ashutosh"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Ashutosh"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Add Member"
-                            android:textSize="15sp"
-                            android:textColor="@color/white"/>
-                    </LinearLayout>
+                            android:layout_marginTop="20dp"
+                            >
 
-                </TableRow>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
 
-            </TableLayout>
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="65dp"
+                                    android:layout_height="65dp"
+                                    android:src="@drawable/media_rohit"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_color="#FF000000"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Rohit"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:layout_width="60dp"
+                                    android:layout_height="60dp"
+                                    android:src="@drawable/baseline_add_24"
+                                    app:civ_border_width="2dp"
+                                    android:layout_marginBottom="7dp"
+                                    app:civ_border_color="#D9B122"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Add Member"
+                                    android:textSize="15sp"
+                                    android:textColor="@color/white"/>
+                            </LinearLayout>
+
+                        </TableRow>
+
+                    </TableLayout>
+
+                </LinearLayout>
+
+
+
+
+
+
+
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -450,41 +691,52 @@
 
 
 
+    </ScrollView>
 
 
-    </LinearLayout>
 
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/homebottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="#E3B616"
         app:itemTextColor="@color/white"
-        app:itemIconSize="25dp"
+        app:itemIconSize="30dp"
         android:background="#363578"
-        app:itemTextAppearanceActiveBoldEnabled="true"
-        app:itemActiveIndicatorStyle="@style/CustomActiveIndicatorStyle"
+        app:itemIconTint="@color/bottom_nav_icon_color"
+
+
         />
 
-    <ImageView
-        android:id="@+id/absoluteImageView"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+    <LinearLayout
+        android:id="@+id/sosButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_gravity="bottom|center"
         android:layout_marginTop="50dp"
-
+        android:orientation="vertical"
         android:layout_marginBottom="15dp"
-        android:src="@drawable/sos2"
+        android:background="@drawable/sos_background_circular"
+        android:gravity="center"
         android:elevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        />
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SOS"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:elevation="15dp"
+            />
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

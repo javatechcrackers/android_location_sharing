@@ -11,10 +11,12 @@ android {
 
     defaultConfig {
         applicationId = "com.example.geofencelive"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        renderscriptTargetApi = 19
+        renderscriptSupportModeEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -99,6 +101,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("androidx.fragment:fragment:1.4.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation(libs.androidx.compose.foundation)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
