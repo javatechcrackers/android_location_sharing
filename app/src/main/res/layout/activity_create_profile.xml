@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main"
+    android:background="@drawable/login_page_background"
+    tools:context=".activities.CreateProfileActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/login_page_background" />
+
+    <LinearLayout
+        android:id="@+id/ll_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp">
+    <!-- Title Text -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Create a Profile"
+        android:layout_marginTop="50dp"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <!-- Profile Image -->
+    <include
+        android:id="@+id/profileImage"
+        layout="@layout/profile_image_with_text"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/titleText"
+        />
+
+    <!-- Email Input -->
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/profileImage"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter Email ID*"
+        android:background="@drawable/custom_edittext_background"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6C6C6C" />
+
+    <!-- Password Input -->
+    <EditText
+        android:id="@+id/passwordInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/emailInput"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter your password*"
+        android:background="@drawable/custom_edittext_background"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6C6C6C"
+        android:inputType="textPassword" />
+
+    <!-- Confirm Password Input -->
+    <EditText
+        android:id="@+id/confirmPasswordInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passwordInput"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Confirm password*"
+        android:background="@drawable/custom_edittext_background"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6C6C6C"
+        android:inputType="textPassword" />
+
+    </LinearLayout>
+
+    <!-- Social Sign-Up Text -->
+    <TextView
+        android:id="@+id/socialSignUpText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_body"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:text="Or Sign Up With"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
+
+    <!-- Social Sign-Up Icons -->
+    <LinearLayout
+        android:id="@+id/socialSignUpIcons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/socialSignUpText"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <!-- Google Icon -->
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/google_icon"
+            android:layout_marginEnd="20dp"
+            android:contentDescription="Google Icon" />
+
+        <!-- Apple Icon -->
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/apple_icon"
+            android:contentDescription="Apple Icon" />
+    </LinearLayout>
+
+    <!-- Progress Indicator -->
+    <RelativeLayout
+        android:id="@+id/bottomSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:padding="16dp">
+
+        <!-- Progress Indicator -->
+        <LinearLayout
+            android:id="@+id/progressIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp">
+
+            <!-- Progress Dots (add more if needed) -->
+            <View
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/progress_dot_inactive"
+                android:layout_margin="4dp" />
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/progress_dot_active"
+                android:layout_margin="4dp" />
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/progress_dot_inactive"
+                android:layout_margin="4dp" />
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/progress_dot_inactive"
+                android:layout_margin="4dp" />
+        </LinearLayout>
+
+        <!-- Next Button -->
+        <include
+            android:id="@+id/btnNext"
+            layout="@layout/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progressIndicator"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

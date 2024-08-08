@@ -8,8 +8,6 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -19,9 +17,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GeoFenceLive"
-
         tools:targetApi="31">
+        <activity
+            android:name=".activities.WelcomeActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.CreateProfileActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver
             android:name=".BroadcastReceivers.GeofenceBroadcastReceiver"
@@ -38,67 +48,48 @@
              project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
              "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
         -->
-
         <activity
             android:name=".activities.GeofenceMapsActivity"
             android:exported="true"
             android:label="@string/title_activity_geofence_maps"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="http" android:host="maps.google.com" android:pathPrefix="/maps"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="maps.google.com"
+                    android:pathPrefix="/maps"
+                    android:scheme="http" />
             </intent-filter>
-
         </activity>
-
-
-
-
         <activity
             android:name=".activities.GroupActivity"
+
             android:exported="false"
             android:theme="@style/Theme.AppCompat.NoActionBar"
 
             />
+=
         <activity
             android:name=".activities.LocationActivity"
             android:exported="false" />
         <activity
             android:name=".activities.LoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.GeoFenceLive" >
-
-
-
-
-        </activity>
+            android:theme="@style/Theme.GeoFenceLive" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${GEOFENCE_MAPS_API_KEY}"/>
-
-
-        
-<!--        <service android:name=".UtilityClasses.PushNotificationService"-->
-<!--            android:exported="false">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.google.firebase.MESSAGING_EVENT"/>-->
-<!--            </intent-filter>-->
-<!--        </service>-->
+            android:value="${GEOFENCE_MAPS_API_KEY}" />
     </application>
 
 </manifest>

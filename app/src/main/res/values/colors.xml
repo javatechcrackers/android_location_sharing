@@ -10,4 +10,6 @@
     <color name="statusbar">#00091B</color>
     <color name="yellow_dark">#E0B122</color>
 
+    <color name="gray">#A9A9A9</color>
+
 </resources>
