@@ -96,6 +96,10 @@ dependencies {
 
     implementation("androidx.work:work-runtime-ktx:2.7.1")
 
+    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.fragment:fragment:1.4.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

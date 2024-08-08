@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Home"
+android:icon="@drawable/ic_home"
+        android:id="@+id/bottom_nav_home"
+
+        />
+    <item android:title="My Map"
+        android:id="@+id/mymap"
+        android:icon="@drawable/ic_maps"
+        />
+    <item android:title="SOS"
+        android:id="@+id/sos"
+        android:icon="@drawable/ic_sos"
+        />
+    <item android:title="Messages"
+        android:id="@+id/bottom_nav_message"
+        android:icon="@drawable/ic_chat"
+        />
+    <item android:title="Settings"
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_settings"
+        />
+</menu>

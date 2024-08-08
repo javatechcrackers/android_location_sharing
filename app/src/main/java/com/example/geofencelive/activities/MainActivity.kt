@@ -1,57 +1,86 @@
 package com.example.geofencelive.activities
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.appcompat.app.AppCompatActivity
+
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.geofencelive.R
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
-import com.example.geofencelive.databinding.ActivityLoginBinding
 import com.example.geofencelive.databinding.ActivityMainBinding
-import com.example.geofencelive.ui.theme.GeoFenceLiveTheme
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.example.geofencelive.fragments.HomeFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.concurrent.TimeUnit
+import androidx.fragment.app.Fragment
+import com.example.geofencelive.fragments.MessageFragment
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private var binding: ActivityMainBinding?= null
+    private lateinit var bottom_navigation : BottomNavigationView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(binding?.root)
 
+        bottom_navigation = binding?.bottomNavigationView!!
+
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         val userEmail = sharedPreferences.getString("userEmail", null)
 
-        binding?.useremail?.text = userEmail
+//        if (savedInstanceState == null) {
+//            supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HomeFragment()).commit()
+//        }
+
+        binding?.bottomNavigationView!!.setOnItemSelectedListener { item ->
+
+            when(item.itemId){
+                R.id.bottom_nav_home ->{
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HomeFragment()).commit()
+                    true
+                }
+
+                R.id.bottom_nav_message->{
+                    supportFragmentManager.beginTransaction().replace(R.id.fragment_container, MessageFragment()).commit()
+                    true
+                }
+
+                else -> {
+                   false
+                }
+            }
 
 
 
-
-
-        binding?.logoutbutton?.setOnClickListener{
-            logoutUser()
         }
 
-        binding?.geofenceButton?.setOnClickListener{
-            val intent = Intent(this, GeofenceMapsActivity::class.java)
-            startActivity(intent)
-        }
 
-        binding?.viewGroupButton?.setOnClickListener{
-            val intent = Intent(this, GroupActivity::class.java)
-            startActivity(intent)
-        }
+
+       // binding?.useremail?.text = userEmail
+
+
+
+
+//
+//        binding?.logoutbutton?.setOnClickListener{
+//            logoutUser()
+//        }
+//
+//        binding?.geofenceButton?.setOnClickListener{
+//            val intent = Intent(this, GeofenceMapsActivity::class.java)
+//            startActivity(intent)
+//        }
+//
+//        binding?.viewGroupButton?.setOnClickListener{
+//            val intent = Intent(this, GroupActivity::class.java)
+//            startActivity(intent)
+//        }
 
         val workRequest = PeriodicWorkRequestBuilder<FirestoreWorker>(15, TimeUnit.MINUTES)
             .build()
@@ -74,20 +103,9 @@ class MainActivity : ComponentActivity() {
         finish() // Close current activity
     }
 
+
+
+
+
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GeoFenceLiveTheme {
-        Greeting("Android")
-    }
-}

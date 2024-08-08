@@ -19,6 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GeoFenceLive"
+
         tools:targetApi="31">
 
 
@@ -42,7 +43,7 @@
             android:name=".activities.GeofenceMapsActivity"
             android:exported="true"
             android:label="@string/title_activity_geofence_maps"
-            android:theme="@style/Theme.AppCompat">
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -57,7 +58,9 @@
 
         <activity
             android:name=".activities.GroupActivity"
-            android:exported="false" />
+            android:exported="false"
+
+            />
         <activity
             android:name=".activities.LocationActivity"
             android:exported="false" />
@@ -65,20 +68,29 @@
             android:name=".activities.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.GeoFenceLive" />
+            android:theme="@style/Theme.GeoFenceLive" >
+
+
+
+
+        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${GEOFENCE_MAPS_API_KEY}"/>
+
+
         
 <!--        <service android:name=".UtilityClasses.PushNotificationService"-->
 <!--            android:exported="false">-->
