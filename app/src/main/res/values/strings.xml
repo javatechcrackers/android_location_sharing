@@ -5,6 +5,7 @@
     <string name="select_family_member">Select Family Member</string>
     <string name="add_remove_member">Add Remove Member</string>
     <string name="no_members_tracking">No member location is tracking\n</string>
+    <string name="marker_location">marker location</string>
     <string-array name="shared_users">
         <item>User 1</item>
         <item>User 2</item>

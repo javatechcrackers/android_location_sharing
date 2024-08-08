@@ -1,3 +1,4 @@
+<!--
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -82,16 +83,133 @@
             android:background="#008CBA"
             android:textColor="@color/white" />
 
-<!--        <TextView-->
-<!--            android:id="@+id/btnSignUp"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="24dp"-->
-<!--            android:text="Don't have an account? Signup"-->
-<!--            android:textAlignment="center"-->
-<!--            android:textColor="@color/black" />-->
+&lt;!&ndash;        <TextView&ndash;&gt;
+&lt;!&ndash;            android:id="@+id/btnSignUp"&ndash;&gt;
+&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;
+&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;
+&lt;!&ndash;            android:layout_marginTop="24dp"&ndash;&gt;
+&lt;!&ndash;            android:text="Don't have an account? Signup"&ndash;&gt;
+&lt;!&ndash;            android:textAlignment="center"&ndash;&gt;
+&lt;!&ndash;            android:textColor="@color/black" />&ndash;&gt;
     </LinearLayout>
 
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_page_background">
+
+    <!-- Background ImageView to cover the whole screen -->
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/login_page_background" />
+
+    <!-- Logo -->
+    <ImageView
+        android:id="@+id/logo_tracker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/logo_tracker" />
+
+    <!-- User ID Input -->
+    <EditText
+        android:id="@+id/editTextUserId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logo_tracker"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter User ID"
+        android:background="@drawable/custom_edittext_background"
+        android:padding="10dp"
+        android:textColor="@android:color/white"
+        android:hintTextColor="@android:color/darker_gray" />
+
+    <!-- Password Input -->
+    <EditText
+        android:id="@+id/editTextPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextUserId"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter your password"
+        android:background="@drawable/custom_edittext_background"
+        android:padding="10dp"
+        android:textColor="@android:color/white"
+        android:hintTextColor="@android:color/darker_gray"
+        android:inputType="textPassword" />
+
+    <!-- Remember Me Checkbox -->
+    <CheckBox
+        android:id="@+id/checkBoxRememberMe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextPassword"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        android:text="Remember me"
+        android:textColor="@android:color/white" />
+
+    <!-- Forgot Password Text -->
+    <TextView
+        android:id="@+id/textViewForgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/editTextPassword"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
+        android:text="Forgot Password?"
+        android:textColor="@android:color/holo_orange_light" />
+
+    <!-- Google and Apple Login Buttons in a Horizontal LinearLayout -->
+    <LinearLayout
+        android:id="@+id/ll_login_icons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxRememberMe"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:orientation="horizontal">
+
+        <!-- Google Login Button -->
+        <ImageView
+            android:id="@+id/buttonGoogleLogin"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/google_icon"
+            android:layout_marginEnd="20dp" />
+
+        <!-- Apple Login Button -->
+        <ImageView
+            android:id="@+id/buttonAppleLogin"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/apple_icon" />
+    </LinearLayout>
+
+    <!-- Or Login Using Text -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_login_icons"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Or Login Using"
+        android:textColor="@android:color/white"
+        tools:ignore="NotSibling" />
+</RelativeLayout>
+
+
+

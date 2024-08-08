@@ -239,10 +239,6 @@ class GroupActivity : AppCompatActivity() {
                     this,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
             ) {
-
-               // val intent = Intent(this, GeofenceMapsActivity::class.java)
-              //  startActivity(intent)
-
                 checkLocationSettings()
 
             }else{
@@ -294,18 +290,17 @@ class GroupActivity : AppCompatActivity() {
     private fun removeAllGeofences(context: Context) {
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener {
-                // Geofences removed successfully
+
                 Log.d("Geofence Removed  ", "Geofences removed successfully")
 
                 val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
-                editor.clear() // Clears all data from SharedPreferences
-                editor.apply() // Apply changes asynchronously
+                editor.clear()
+                editor.apply()
 
-                // Optional: Redirect user to the login screen or any other appropriate activity
                 val intent = Intent(context, LoginActivity::class.java)
                 startActivity(intent)
-                finish() // Close current activity
+                finish()
             }
             addOnFailureListener {
                 // Failed to remove geofences
@@ -426,8 +421,8 @@ class GroupActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun requestLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
-            interval = 5000 // 5 seconds
-            fastestInterval = 2000 // 2 seconds
+            interval = 5000
+            fastestInterval = 2000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -458,8 +453,10 @@ class GroupActivity : AppCompatActivity() {
                 userAdapter.clear()
                 dataSnapshot.children.forEach { snapshot ->
                     val userId = snapshot.key ?: return@forEach
-                    sharedUsers.add(userId);
-                    userAdapter.add(userId)
+                    if(userId != userName){
+                        sharedUsers.add(userId);
+                        userAdapter.add(userId)
+                    }
                 }
                 userAdapter.notifyDataSetChanged()
             }
