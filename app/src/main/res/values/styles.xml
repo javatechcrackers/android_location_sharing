@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <style name="CustomActiveIndicatorStyle"
+       >
+        <item name="android:height">4dp</item> <!-- Indicator height -->
+        <item name="android:shape">rectangle</item> <!-- Shape of the indicator -->
+        <item name="android:color">#D9B122</item> <!-- Color of the indicator -->
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="cornerFamily">rounded</item> <!-- For rounded corners -->
+        <item name="cornerSize">50%</item> <!-- Corner size for rounded corners -->
+    </style>
+</resources>

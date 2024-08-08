@@ -3,18 +3,15 @@ package com.example.geofencelive.UtilityClasses
 import android.util.Log
 import com.example.geofencelive.Models.GeofenceModel
 import com.example.geofencelive.Models.GeofenceTransitionModel
-import com.example.geofencelive.Models.UserModal
 import com.example.geofencelive.Models.userToken
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import kotlin.math.log
 
 class FirestoreHelper{
     val db = FirebaseFirestore.getInstance()
@@ -81,6 +78,10 @@ class FirestoreHelper{
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting geofence: ", exception)
             }
+    }
+
+    fun getGeofenceEvents(){
+
     }
 
     fun getGeofenceList(email: String, callback: (List<GeofenceModel>) -> Unit) {

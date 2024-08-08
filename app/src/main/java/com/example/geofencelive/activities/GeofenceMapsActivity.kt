@@ -44,7 +44,10 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.libraries.places.api.Places
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.RecyclerView
+import com.example.geofencelive.Models.GeofenceTransitionModel
 import com.example.geofencelive.UtilityClasses.FirestoreHelper
+import com.example.geofencelive.UtilityClasses.NotificationAdapter
 import com.example.geofencelive.UtilityClasses.NotificationHelper
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -86,6 +89,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
 
 
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +100,8 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
        // val editor = sharedPreferences.edit()
       //  editor.apply()
+
+
 
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)

@@ -13,9 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="5dp"
+        android:padding="10dp"
         android:gravity="center_vertical"
-        android:background="@drawable/rectanglebackground"
+        android:background="@drawable/gradientbg_2"
         >
 
         <LinearLayout
@@ -23,19 +23,21 @@
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dp"
             android:padding="4dp"
+            android:gravity="center"
 
             android:background="@drawable/rectanglebackground"
             >
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="0.2"
-                android:layout_height="wrap_content"
-                android:background="@drawable/circular_button"
+                android:layout_height="40dp"
+                android:background="@drawable/circular_maps_btn"
                 android:id="@+id/geofenceRadiusMinus"
 
                 android:text="-"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textFontWeight="900"
                 android:textStyle="bold"
 
@@ -58,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textColor="@color/black"
-                    android:textSize="13sp"
+                    android:textSize="10sp"
                     android:text="Geofence Radius"
                     android:textAlignment="center"
 
@@ -85,12 +87,12 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="0.2"
-                android:background="@drawable/circular_button"
-                android:layout_height="wrap_content"
+                android:background="@drawable/circular_maps_btn"
+                android:layout_height="40dp"
                 android:id="@+id/geofenceRadiusPlus"
 
                 android:text="+"
-                android:textSize="25sp"
+                android:textSize="20sp"
 
                 android:textColor="@color/white"
 
@@ -103,18 +105,19 @@
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:padding="4dp"
+            android:layout_marginLeft="5dp"
             android:layout_gravity="center_vertical"
             android:background="@drawable/rectanglebackground"
             >
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="0.2"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:id="@+id/geofenceEntryDurationMinus"
 
                 android:text="-"
-                android:textSize="25sp"
-                android:background="@drawable/circular_button"
+                android:textSize="20sp"
+                android:background="@drawable/circular_maps_btn"
                 android:textFontWeight="900"
                 android:textStyle="bold"
 
@@ -137,8 +140,8 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:textSize="13sp"
-                    android:text="Time Limit for user"
+                    android:textSize="10sp"
+                    android:text="Time Limit"
                     android:textAlignment="center"
 
                     />
@@ -162,12 +165,12 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="0.2"
-                android:layout_height="wrap_content"
-                android:background="@drawable/circular_button"
+                android:layout_height="40dp"
+                android:background="@drawable/circular_maps_btn"
                 android:id="@+id/geofenceEntryDurationPlus"
 
                 android:text="+"
-                android:textSize="25sp"
+                android:textSize="20sp"
 
                 android:textColor="@color/white"
 

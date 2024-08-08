@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -15,6 +16,8 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.Spinner
@@ -24,11 +27,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.geofencelive.BroadcastReceivers.GeofenceBroadcastReceiver
+import com.example.geofencelive.Models.GeofenceTransitionModel
 import com.example.geofencelive.R
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
+import com.example.geofencelive.UtilityClasses.NotificationAdapter
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
@@ -39,23 +46,29 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.SettingsClient
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import java.util.concurrent.TimeUnit
 
 class GroupActivity : AppCompatActivity() {
-    private lateinit var btnLiveTracking: Button
+
+    val layoutId = R.layout.activity_group
+
+    private lateinit var btnLiveTracking: ImageButton
     private lateinit var layoutLiveTrackingOptions: LinearLayout
     private lateinit var btnShareLocation: Button
     private lateinit var btnSharedLocation: Button
-    private lateinit var btnLogout : Button
+    private lateinit var btnLogout : ImageButton
     private lateinit var spinnerSharedLocations: Spinner
-    private lateinit var btnShareCurrentLocation : Button
-    private lateinit var btnGeoFence: Button
+    private lateinit var btnShareCurrentLocation : ImageButton
+    private lateinit var btnGeoFence: ImageButton
     private lateinit var nameText : TextView
     private  var userName : String? = null
     private lateinit var listGeoFenceUsers: ListView
@@ -66,6 +79,13 @@ class GroupActivity : AppCompatActivity() {
     private var isUserInteractingWithSpinner = false
     private val BACKGROUND_LOCATION_REQUEST_CODE = 10002;
     private lateinit var settingsClient: SettingsClient
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var geofenceEventAdapter: NotificationAdapter
+    private lateinit var geofenceEventList: MutableList<GeofenceTransitionModel>
+    private val db = FirebaseFirestore.getInstance()
+
+
 
 
     lateinit var geofencingClient: GeofencingClient
@@ -78,7 +98,24 @@ class GroupActivity : AppCompatActivity() {
         val workRequest = PeriodicWorkRequestBuilder<FirestoreWorker>(15, TimeUnit.MINUTES)
             .build()
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.statusBarColor = ContextCompat.getColor(this, R.color.statusbar)
+
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+        }
+
         WorkManager.getInstance(this).enqueue(workRequest)
+
+        recyclerView = findViewById(R.id.notification_recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        geofenceEventList = mutableListOf()
+        geofenceEventAdapter = NotificationAdapter(geofenceEventList)
+        recyclerView.adapter = geofenceEventAdapter
+
+        fetchGeofenceEvents()
 
         btnLiveTracking = findViewById(R.id.btn_live_tracking)
         layoutLiveTrackingOptions = findViewById(R.id.layout_live_tracking_options)
@@ -109,7 +146,20 @@ class GroupActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         userName = sharedPreferences.getString("displayName", null)
 
-        nameText.text = "Hi $userName"
+        nameText.text = "Mr $userName"
+
+        val userImg : de.hdodenhof.circleimageview.CircleImageView  = findViewById(R.id.user_circular_image_view)
+
+        if(userName == "Ashutosh Pandey"){
+            userImg.setImageResource(R.drawable.media_ashutosh)
+        }
+        else if(userName == "Prashant Katiyar"){
+            userImg.setImageResource(R.drawable.media_prashant)
+        }else if(userName == "Harish Kumar"){
+            userImg.setImageResource(R.drawable.media_harish)
+        }else{
+            userImg.setImageResource(R.drawable.media_rohit)
+        }
 
         btnLiveTracking.setOnClickListener {
             toggleVisibility(layoutLiveTrackingOptions)
@@ -205,6 +255,38 @@ class GroupActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchGeofenceEvents(){
+        db.collection("geofence")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .limit(5)
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val useremail = document.getString("useremail")
+                    val transition = document.getString("transitionType")
+                    val time = document.getLong("createdAt")
+                    val latLngMap = document.get("latLng") as? Map<String, Any>
+                    val latitude = latLngMap?.get("latitude") as? Double
+                    val longitude = latLngMap?.get("longitude") as? Double
+
+                    val currCoordinates = LatLng(latitude!!, longitude!!)
+
+                    val geofenceEvent : GeofenceTransitionModel = GeofenceTransitionModel(
+                            transition,
+                            currCoordinates,
+                            useremail!!,
+                            time!!
+                            )
+                   // val geofenceEvent = document.toObject(GeofenceTransitionModel::class.java)
+                    geofenceEventList.add(geofenceEvent)
+                }
+                geofenceEventAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                Log.w("GroupActivity", "Error getting documents: ", exception)
+            }
+    }
+
     private fun removeAllGeofences(context: Context) {
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener {
@@ -243,6 +325,7 @@ class GroupActivity : AppCompatActivity() {
     }
 
     private fun shareCurrentLocation(){
+        Toast.makeText(this, "Clicked", Toast.LENGTH_LONG).show()
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -433,6 +516,9 @@ class GroupActivity : AppCompatActivity() {
     }
 
     companion object {
+       // @LayoutRes
+       // const val layoutId = R.layout.activity_group
+
         const val REQUEST_CHECK_SETTINGS = 100
     }
 }
