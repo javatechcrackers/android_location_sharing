@@ -32,5 +32,18 @@ class WelcomeActivity : AppCompatActivity() {
             finish();
 
         }
+
+
+        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.apply()
+
+        val userEmail = sharedPreferences.getString("userEmail", null)
+        if(!userEmail.isNullOrEmpty()){
+            // redirectToMain()
+            val intent = Intent(this, GroupActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }
