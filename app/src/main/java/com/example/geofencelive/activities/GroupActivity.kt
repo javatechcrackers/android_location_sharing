@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.graphics.Shader
 import android.location.Location
 import android.os.Build
@@ -15,6 +16,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -27,6 +29,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.ui.res.colorResource
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -39,6 +43,10 @@ import com.example.geofencelive.Models.GeofenceTransitionModel
 import com.example.geofencelive.R
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
 import com.example.geofencelive.UtilityClasses.NotificationAdapter
+import com.example.geofencelive.databinding.ActivityGroupBinding
+import com.example.geofencelive.databinding.ActivityMainBinding
+import com.example.geofencelive.fragments.HomeFragment
+import com.example.geofencelive.fragments.MessageFragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
@@ -51,6 +59,7 @@ import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.SettingsClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -58,12 +67,20 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.GlobalScope
+
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+
+import kotlin.random.Random
 
 class GroupActivity : AppCompatActivity() {
 
     val layoutId = R.layout.activity_group
 
+//    private lateinit var btnLightMode : de.hdodenhof.circleimageview.CircleImageView
+//    private lateinit var btnDarkMode : de.hdodenhof.circleimageview.CircleImageView
+    private lateinit var modeSwitchLayout : LinearLayout
     private lateinit var btnLiveTracking: ImageButton
     private lateinit var layoutLiveTrackingOptions: LinearLayout
     private lateinit var btnShareLocation: Button
@@ -89,6 +106,8 @@ class GroupActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private lateinit var blurOverlay: View
     private lateinit var rootView: ConstraintLayout
+    private lateinit var bottom_navigation : BottomNavigationView
+    private var binding: ActivityGroupBinding?= null
 
 
 
@@ -97,8 +116,16 @@ class GroupActivity : AppCompatActivity() {
 
     @SuppressLint("MissingInflatedId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
+
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_group)
+
+
+        binding = ActivityGroupBinding.inflate(layoutInflater)
+        setContentView(binding?.root)
+
+
 
         val workRequest = PeriodicWorkRequestBuilder<FirestoreWorker>(15, TimeUnit.MINUTES)
             .build()
@@ -114,15 +141,24 @@ class GroupActivity : AppCompatActivity() {
 
         WorkManager.getInstance(this).enqueue(workRequest)
 
+//        btnLightMode = findViewById(R.id.btn_lightmode)
+//        btnDarkMode = findViewById(R.id.btn_darkmode)
+        bottom_navigation = findViewById(R.id.groupbottomNavigationView)
+        modeSwitchLayout = findViewById(R.id.darkmode_linearlayout)
         recyclerView = findViewById(R.id.notification_recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         geofenceEventList = mutableListOf()
+
         geofenceEventAdapter = NotificationAdapter(geofenceEventList)
         recyclerView.adapter = geofenceEventAdapter
 
         rootView = findViewById(R.id.groupscreen)
         blurOverlay = findViewById(R.id.blurOverlay)
-        fetchGeofenceEvents()
+
+        GlobalScope.launch {
+            fetchGeofenceEvents()
+        }
+
 
         btnLiveTracking = findViewById(R.id.btn_live_tracking)
         layoutLiveTrackingOptions = findViewById(R.id.layout_live_tracking_options)
@@ -170,7 +206,40 @@ class GroupActivity : AppCompatActivity() {
             userImg.setImageResource(R.drawable.media_rohit)
         }
 
+        binding?.closeLivetrackingOptions?.setOnClickListener{
+            toggleVisibility(layoutLiveTrackingOptions)
+            toggleVisibility(binding?.blurOverlay!!)
+        }
+
+        bottom_navigation.setOnItemSelectedListener{ item->
+            when(item.itemId){
+                R.id.settings_bottomnav ->{
+                    toggleVisibility(modeSwitchLayout)
+                    true
+                }
+
+
+                else -> {
+                    true
+                }
+            }
+
+        }
+
+//        btnLightMode.setOnClickListener{
+//            enableLightMode()
+//            toggleVisibility(modeSwitchLayout)
+//        }
+//
+//        btnDarkMode.setOnClickListener{
+//            enableDarkMode()
+//            toggleVisibility(modeSwitchLayout)
+//        }
+
         btnLiveTracking.setOnClickListener {
+
+            toggleVisibility(binding?.blurOverlay!!)
+
             toggleVisibility(layoutLiveTrackingOptions)
             listGeoFenceUsers.visibility = View.GONE
 
@@ -230,11 +299,145 @@ class GroupActivity : AppCompatActivity() {
             }
         }
 
+        binding?.themeSwitch?.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                enableLightMode()
+                toggleVisibility(modeSwitchLayout)
+                //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            } else {
+                enableDarkMode()
+                toggleVisibility(modeSwitchLayout)
+               // AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+        }
         btnLogout.setOnClickListener {
             logoutUser()
         }
 
 
+    }
+
+    private fun enableLightMode(){
+      //  Toast.makeText(this, "lightmodecalled", Toast.LENGTH_LONG).show()
+        binding?.groupscreen!!.setBackgroundResource(R.drawable.bg_page_gradient_light)
+        binding?.notificationRecyclerView!!.setBackgroundResource(R.drawable.recyclerview_bg_light)
+        binding?.actionButtons!!.setBackgroundColor(Color.TRANSPARENT)
+        binding?.groupbottomNavigationView!!.setBackgroundColor(Color.TRANSPARENT)
+        binding?.actionBarCalendar!!.setImageResource(R.drawable.ic_calendar_light)
+        binding?.actionBarNotification!!.setImageResource(R.drawable.ic_notification_light)
+        binding?.actionBarNotification!!.setBackgroundColor(Color.TRANSPARENT)
+        binding?.actionBarCalendar!!.setBackgroundColor(Color.TRANSPARENT)
+        binding?.btnUserLogout?.setImageResource(R.drawable.ic_logout_light)
+        binding?.btnUserLogout!!.setBackgroundColor(Color.TRANSPARENT)
+        binding?.btnLiveTracking?.setBackgroundResource(R.drawable.circular_img_light)
+        binding?.btnGeoFence?.setBackgroundResource(R.drawable.circular_img_light)
+        binding?.btnShareCurrentLocation?.setBackgroundResource(R.drawable.circular_img_light)
+        binding?.familyTable?.setBackgroundResource(R.drawable.table_layout_bg_light)
+        binding?.friendsTableLayout?.setBackgroundResource(R.drawable.table_layout_bg_light)
+        binding?.darkmodeLinearlayout?.setBackgroundResource(R.drawable.linear_layout_bg_light)
+        binding?.layoutLiveTrackingOptions?.setBackgroundResource(R.drawable.linear_layout_bg_light)
+        binding?.groupbottomNavigationView?.itemIconTintList = ContextCompat.getColorStateList(this, R.color.bottom_nav_icon_light)
+
+
+        val linearLayout : ConstraintLayout = findViewById(R.id.groupscreen)
+
+        changeBorderColourYellow(linearLayout)
+
+        val viewGroup : ConstraintLayout = findViewById(R.id.groupscreen) // Replace with your root view ID
+
+        val rootView : ConstraintLayout = findViewById(R.id.groupscreen) // Replace with your root view ID
+        changeTextColorToBlack(rootView as ViewGroup)
+
+
+
+       // binding?.actionButtons!!.setBackgroundResource(R.drawable.recyclerview_bg_light)
+        //binding?.actionBar?.setBackgroundColor(Color.parseColor("#FFF"))
+
+    }
+
+    private fun enableDarkMode(){
+      //  Toast.makeText(this, "darkmodecalled", Toast.LENGTH_LONG).show()
+        binding?.groupscreen!!.setBackgroundResource(R.drawable.homegradient)
+        binding?.notificationRecyclerView!!.setBackgroundResource(R.drawable.gradientbg_2)
+       // binding?.actionBar?.setBackgroundResource(R.drawable.gradientbg_2)
+        binding?.actionButtons!!.setBackgroundResource(R.drawable.gradientbg_2)
+        binding?.groupbottomNavigationView!!.setBackgroundColor(Color.parseColor("#363578"))
+        binding?.actionBarCalendar!!.setImageResource(R.drawable.baseline_calendar_today_24)
+        binding?.actionBarNotification!!.setImageResource(R.drawable.ic_notification)
+        binding?.actionBarNotification!!.setBackgroundColor(Color.parseColor("#00091B"))
+        binding?.actionBarCalendar!!.setBackgroundColor(Color.parseColor("#00091B"))
+        binding?.btnUserLogout?.setImageResource(R.drawable.ic_logout)
+        binding?.btnUserLogout!!.setBackgroundColor(Color.parseColor("#00091B"))
+        binding?.btnLiveTracking?.setBackgroundResource(R.drawable.circular_image)
+        binding?.btnGeoFence?.setBackgroundResource(R.drawable.circular_image)
+        binding?.btnShareCurrentLocation?.setBackgroundResource(R.drawable.circular_image)
+        binding?.familyTable?.setBackgroundColor(Color.TRANSPARENT)
+        binding?.friendsTableLayout?.setBackgroundColor(Color.TRANSPARENT)
+        binding?.darkmodeLinearlayout?.setBackgroundResource(R.drawable.linear_layout_bg_dark)
+        binding?.layoutLiveTrackingOptions?.setBackgroundResource(R.drawable.linear_layout_bg_dark)
+        binding?.groupbottomNavigationView?.itemIconTintList = ContextCompat.getColorStateList(this, R.color.bottom_nav_icon_color)
+
+        val linearLayout : ConstraintLayout = findViewById(R.id.groupscreen)
+
+       changeBorderColourBlack(linearLayout)
+
+        val viewGroup : ConstraintLayout = findViewById(R.id.groupscreen) // Replace with your root view ID
+
+        val rootView : ConstraintLayout = findViewById(R.id.groupscreen) // Replace with your root view ID
+        changeTextColorToWhite(rootView as ViewGroup)
+
+    }
+
+    fun changeBorderColourBlack(viewGroup: ViewGroup){
+        for (i in 0 until viewGroup.childCount) {
+            val child = viewGroup.getChildAt(i)
+            if (child is de.hdodenhof.circleimageview.CircleImageView && (child.id != R.id.add_member && child.id != R.id.add_member2)) {
+                child.borderColor = ContextCompat.getColor(this, R.color.black)
+            } else if (child is ViewGroup) {
+                changeBorderColourBlack(child as ViewGroup)
+            }
+        }
+    }
+
+    fun changeBorderColourYellow(viewGroup: ViewGroup){
+        for (i in 0 until viewGroup.childCount) {
+            val child = viewGroup.getChildAt(i)
+            if (child is de.hdodenhof.circleimageview.CircleImageView) {
+                child.borderColor = ContextCompat.getColor(this, R.color.yellow_dark)
+            } else if (child is ViewGroup) {
+                changeBorderColourYellow(child as ViewGroup)
+            }
+        }
+    }
+
+    fun changeTextColorToBlack(viewGroup: ViewGroup) {
+        for (i in 0 until viewGroup.childCount) {
+            val child = viewGroup.getChildAt(i)
+            if (child is TextView) {
+                child.setTextColor(ContextCompat.getColor(this, R.color.black))
+            } else if (child is ViewGroup) {
+                changeTextColorToBlack(child as ViewGroup)
+            }
+        }
+    }
+
+    fun changeTextColorToWhite(viewGroup: ViewGroup) {
+        for (i in 0 until viewGroup.childCount) {
+            val child = viewGroup.getChildAt(i)
+            if (child is TextView && (child.id != R.id.friends_tv) && (child.id != R.id.family_tv)) {
+                child.setTextColor(ContextCompat.getColor(this, R.color.white))
+            } else if (child is ViewGroup) {
+                changeTextColorToWhite(child as ViewGroup)
+            }
+
+            if(child is TextView && (child.id == R.id.family_tv || child.id == R.id.friends_tv)){
+                child.setTextColor(ContextCompat.getColor(this, R.color.yellow_dark))
+            }
+
+            if(child is RecyclerView){
+                changeTextColorToBlack(child)
+            }
+        }
     }
 
     private fun fetchGeofenceEvents(){

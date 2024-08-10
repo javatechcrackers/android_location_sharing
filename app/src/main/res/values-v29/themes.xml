@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.GeoFenceLive" parent="android:Theme.Material.Light.NoActionBar" >
-        <item name="android:forceDarkAllowed">false</item>
-    </style>
-  <!-- Base application theme. -->
-    <style name="Base.Theme.GeoFenceLive" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here -->
         <item name="android:windowFullscreen">true</item>
@@ -16,4 +8,6 @@
         <item name="android:textColorHint">@color/gray</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
+
+
 </resources>

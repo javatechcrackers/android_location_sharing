@@ -10,6 +10,9 @@
     <color name="statusbar">#00091B</color>
     <color name="yellow_dark">#E0B122</color>
 
+    <color name="text_color">#FFF</color>
+    <color name="bg_darkmode_linearlayout">#535278</color>
+
     <color name="gray">#A9A9A9</color>
 
 </resources>

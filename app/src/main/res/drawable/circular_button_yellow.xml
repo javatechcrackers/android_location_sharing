@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:startColor="#FF3434"
 
-        android:endColor="#E0B122"
+    <solid android:color="@color/yellow_dark"/>
+<!--    <gradient-->
+<!--        android:startColor="#FF3434"-->
 
-        android:angle="270"
+<!--        android:endColor="#E0B122"-->
 
-        /><!-- Button color -->
+<!--        android:angle="270"-->
+
+<!--        />&lt;!&ndash; Button color &ndash;&gt;-->
     <corners android:radius="30dp" /> <!-- Adjust the radius to make it circular -->
     <size
         android:width="100dp"

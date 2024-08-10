@@ -69,7 +69,7 @@
             android:name=".activities.GroupActivity"
 
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             />
 =

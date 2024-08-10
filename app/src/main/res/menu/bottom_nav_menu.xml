@@ -20,7 +20,7 @@
         android:icon="@drawable/img_7"
         />
     <item android:title="Settings"
-        android:id="@+id/settings"
+        android:id="@+id/settings_bottomnav"
         android:icon="@drawable/img_9"
 
         />
