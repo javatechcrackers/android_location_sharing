@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Shader
@@ -41,6 +42,7 @@ import androidx.work.WorkManager
 import com.example.geofencelive.BroadcastReceivers.GeofenceBroadcastReceiver
 import com.example.geofencelive.Models.GeofenceTransitionModel
 import com.example.geofencelive.R
+import com.example.geofencelive.UtilityClasses.FirestoreHelper
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
 import com.example.geofencelive.UtilityClasses.NotificationAdapter
 import com.example.geofencelive.databinding.ActivityGroupBinding
@@ -85,6 +87,7 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var layoutLiveTrackingOptions: LinearLayout
     private lateinit var btnShareLocation: Button
     private lateinit var btnSharedLocation: Button
+    private lateinit var currUserEmail : String
     private lateinit var btnLogout : ImageButton
     private lateinit var spinnerSharedLocations: Spinner
     private lateinit var btnShareCurrentLocation : ImageButton
@@ -108,6 +111,7 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var rootView: ConstraintLayout
     private lateinit var bottom_navigation : BottomNavigationView
     private var binding: ActivityGroupBinding?= null
+    private lateinit var firestoreHelper : FirestoreHelper
 
 
 
@@ -124,6 +128,8 @@ class GroupActivity : AppCompatActivity() {
 
         binding = ActivityGroupBinding.inflate(layoutInflater)
         setContentView(binding?.root)
+//        val sharedPreferences : SharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+//        currUserEmail = sharedPreferences.getString("userEmail", null).toString()
 
 
 
@@ -158,6 +164,7 @@ class GroupActivity : AppCompatActivity() {
         GlobalScope.launch {
             fetchGeofenceEvents()
         }
+        firestoreHelper = FirestoreHelper()
 
 
         btnLiveTracking = findViewById(R.id.btn_live_tracking)
@@ -190,6 +197,7 @@ class GroupActivity : AppCompatActivity() {
 
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         userName = sharedPreferences.getString("displayName", null)
+        currUserEmail = sharedPreferences.getString("userEmail", null).toString()
 
         nameText.text = "Mr $userName"
 
@@ -209,6 +217,10 @@ class GroupActivity : AppCompatActivity() {
         binding?.closeLivetrackingOptions?.setOnClickListener{
             toggleVisibility(layoutLiveTrackingOptions)
             toggleVisibility(binding?.blurOverlay!!)
+        }
+
+        binding?.sosButton?.setOnClickListener{
+            sendSOSAlert()
         }
 
         bottom_navigation.setOnItemSelectedListener{ item->
@@ -313,6 +325,77 @@ class GroupActivity : AppCompatActivity() {
         btnLogout.setOnClickListener {
             logoutUser()
         }
+
+
+    }
+
+    private fun sendSOSAlert(){
+
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+
+        val locationSettingsRequestN = builder.build()
+
+        var latLng : LatLng = LatLng(0.0,0.0)
+
+        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(locationSettingsRequestN)
+
+        task.addOnSuccessListener { locationSettingsResponse ->
+
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return@addOnSuccessListener
+                }
+            fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        location?.let {
+                            // shareLocation(it.latitude, it.longitude)
+
+                            val latitude : Double = it.latitude
+                            val longitude : Double = it.longitude
+
+                            latLng = LatLng(latitude, longitude)
+
+                            firestoreHelper.postTransitionEvents("Emergency SOS", latLng, currUserEmail)
+
+
+                        }
+                    }
+
+
+                // All location settings are satisfied. The client can initialize location requests here.
+                Log.d("LocationSettings", "All location settings are satisfied.")
+            }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                // Location settings are not satisfied, but this can be fixed by showing the user a dialog.
+                try {
+                    exception.startResolutionForResult(this, REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
+            }
+        }
+
 
 
     }

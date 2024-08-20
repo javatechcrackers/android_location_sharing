@@ -6,6 +6,7 @@ package com.example.geofencelive.UtilityClasses
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.geofencelive.activities.GeofenceMapsActivity
@@ -71,7 +72,13 @@ class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker
                             val isWithinLastFiveMinutes = time >= fiveMinutesAgoMillis
                             val notificationHelper = NotificationHelper(applicationContext)
 
-                            if(docId == null && isWithinLastFiveMinutes && transition != "No Event Happened"){
+                           val currUserEmail = sharedPreferences.getString("userEmail", null).toString()
+
+
+
+
+
+                            if(docId == null && isWithinLastFiveMinutes && transition != "No Event Happened" && transition != "Emergency SOS"){
                                 val editor = sharedPreferences.edit()
                                 editor.putString(documentId.toString(), documentId.toString())
                                // Save device identifier if needed
@@ -98,6 +105,21 @@ class FirestoreWorker(context: Context, workerParams: WorkerParameters) : Worker
                                     GeofenceMapsActivity::class.java,
                                     currCoordinates
                                 )
+                            }
+
+                            if(docId == null && isWithinLastFiveMinutes && transition == "Emergency SOS"){
+                                if(useremail != currUserEmail){
+                                    val editor = sharedPreferences.edit()
+                                    editor.putString(documentId.toString(), documentId.toString())
+                                    // Save device identifier if needed
+                                    editor.apply()
+                                    notificationHelper.sendHighPriorityNotification(
+                                        "EMERGENCY",
+                                        "$useremail is in some kind of danger. Coordinates of user when SOS alert generated $currCoordinates at time  $formattedDate" ,
+                                        GeofenceMapsActivity::class.java,
+                                        currCoordinates
+                                    )
+                                }
                             }
 
 
