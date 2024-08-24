@@ -35,21 +35,33 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback  {
 
     private lateinit var mMap: GoogleMap
     private lateinit var databaseReference: DatabaseReference
+    private lateinit var oneToOneDatabaseReference: DatabaseReference
     private var userMarkers: MutableMap<String, Marker> = mutableMapOf()
     private var activeUserIds: MutableList<String> = mutableListOf()
+    private var oneToOneUserIds: MutableList<String> = mutableListOf()
+    private var familyMembers: MutableList<String> = mutableListOf()
     private lateinit var userId : String
     private lateinit var spinnerFamilyMembers: Spinner
+    private lateinit var spinnerGroupMembers : Spinner
     private lateinit var btnAddRemoveMember: Button
+    private lateinit var btnOneToOneLocation : Button
+    private  var userName : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location)
 
-        userId = intent.getStringExtra("userId").toString()
-        activeUserIds.add(userId);
+//        userId = intent.getStringExtra("userId").toString()
+//        activeUserIds.add(userId);
+        activeUserIds =  intent.getStringArrayListExtra("activeUserIds")?.toMutableList() ?: mutableListOf()
         databaseReference = FirebaseDatabase.getInstance().reference.child("locations")
+        oneToOneDatabaseReference = FirebaseDatabase.getInstance().reference.child("onetoonelocations")
         spinnerFamilyMembers = findViewById(R.id.spinnerFamilyMembers)
+        spinnerGroupMembers = findViewById(R.id.spinnerGroupMembers)
         btnAddRemoveMember = findViewById(R.id.btnAddRemoveMember)
+        btnOneToOneLocation = findViewById(R.id.btnOneToOneLocation)
+        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+        userName = sharedPreferences.getString("displayName", null)
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -89,25 +101,67 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback  {
             })
         }
     }
+
+    private fun listenForOneToOneLocationUpdates() {
+        oneToOneUserIds.forEach { userID ->
+            val userLocationRef = databaseReference.child(userID)
+            userLocationRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        val latitude = dataSnapshot.child("latitude").getValue(Double::class.java)
+                        val longitude = dataSnapshot.child("longitude").getValue(Double::class.java)
+                        val accuracy = dataSnapshot.child("accuracy").getValue(Float::class.java)
+
+                        val location = Location("").apply {
+                            this.latitude = latitude ?: 0.0
+                            this.longitude = longitude ?: 0.0
+                            this.accuracy = accuracy ?: 0.0f
+                        }
+                        updateLocationOnMap(userID, location)
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.e("Firebase", "Error fetching location: ${databaseError.message}")
+                }
+            })
+        }
+
+    }
     private fun setupUI() {
         // Setup spinner with family members
+//        fetchSharedUsers();
+        fetchOneToOneSharedUsers();
         val familyMembers = intent.getStringArrayListExtra("activeUserIds")?.toMutableList() ?: mutableListOf()
         Log.e("family Members ", familyMembers.toString());
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, familyMembers)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerFamilyMembers.adapter = adapter
 
-        btnAddRemoveMember.setOnClickListener {
-            val selectedUser = spinnerFamilyMembers.selectedItem.toString()
-            if (activeUserIds.contains(selectedUser)) {
-                activeUserIds.remove(selectedUser)
-                removeMarker(selectedUser)
-            } else {
-                activeUserIds.add(selectedUser)
-                listenForLocationUpdates()
+
+        btnOneToOneLocation.setOnClickListener{
+            activeUserIds.forEach { id ->
+                removeMarker(id)
             }
-            if (activeUserIds.isEmpty()) {
-                Toast.makeText(this,"Add a member to trace!!",Toast.LENGTH_LONG).show();
+            listenForOneToOneLocationUpdates()
+        }
+
+        btnAddRemoveMember.setOnClickListener {
+            if(activeUserIds.size == 0){
+                activeUserIds =  intent.getStringArrayListExtra("activeUserIds")?.toMutableList() ?: mutableListOf()
+                listenForLocationUpdates()
+            }else{
+                val selectedUser = spinnerFamilyMembers.selectedItem.toString()
+                if (activeUserIds.contains(selectedUser)) {
+                    activeUserIds.remove(selectedUser)
+                    removeMarker(selectedUser)
+                } else {
+                    activeUserIds.add(selectedUser)
+                    listenForLocationUpdates()
+                }
+                if (activeUserIds.isEmpty()) {
+                    Toast.makeText(this,"Add a member to trace!!",Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -174,4 +228,45 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback  {
 
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
+
+    private fun fetchOneToOneSharedUsers() {
+        // Access the current user's node in the database
+        val currentUserRef = userName?.let { oneToOneDatabaseReference.child(it) }
+
+        // Add a single value event listener to the current user's node
+        if (currentUserRef != null) {
+            currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    oneToOneUserIds.clear()
+
+                    // Iterate through the children of the current user's node
+                    dataSnapshot.children.forEach { snapshot ->
+                        val userId = snapshot.key ?: return@forEach
+                        Log.e("child userId :", userId.toString())
+
+                        // Add the child userId to the sharedUsers list and userAdapter
+                        oneToOneUserIds.add(userId)
+                    }
+
+                    // Log the list of shared users and notify the adapter of data changes
+                    Log.e("Shared Users under $userName ::", oneToOneUserIds.toString())
+//                    userAdapter.notifyDataSetChanged()
+                    setAdapter();
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Handle possible errors
+                    Log.e("Database Error", "Error fetching data: ${databaseError.message}")
+                }
+            })
+        }
+    }
+    private fun setAdapter(){
+        val groupAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, oneToOneUserIds)
+        groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerGroupMembers.adapter = groupAdapter
+        Log.e("OneToOne : ", oneToOneUserIds.toString());
+        spinnerGroupMembers.setSelection(0)
+    }
+
 }

@@ -3,14 +3,11 @@ package com.example.geofencelive.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.graphics.drawable.BitmapDrawable
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.Shader
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -22,7 +19,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.Spinner
@@ -31,7 +27,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.res.colorResource
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -46,9 +41,6 @@ import com.example.geofencelive.UtilityClasses.FirestoreHelper
 import com.example.geofencelive.UtilityClasses.FirestoreWorker
 import com.example.geofencelive.UtilityClasses.NotificationAdapter
 import com.example.geofencelive.databinding.ActivityGroupBinding
-import com.example.geofencelive.databinding.ActivityMainBinding
-import com.example.geofencelive.fragments.HomeFragment
-import com.example.geofencelive.fragments.MessageFragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
@@ -70,11 +62,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.GlobalScope
-
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
-
-import kotlin.random.Random
 
 class GroupActivity : AppCompatActivity() {
 
@@ -249,11 +238,13 @@ class GroupActivity : AppCompatActivity() {
 //        }
 
         btnLiveTracking.setOnClickListener {
+            fetchSharedUsers();
+            showShareLocationConfirmationDialog();
 
-            toggleVisibility(binding?.blurOverlay!!)
+            /*toggleVisibility(binding?.blurOverlay!!)
 
             toggleVisibility(layoutLiveTrackingOptions)
-            listGeoFenceUsers.visibility = View.GONE
+            listGeoFenceUsers.visibility = View.GONE*/
 
          //  toggleVisibility(spinnerSharedLocations)
          //   fetchSharedUsers()
@@ -261,11 +252,19 @@ class GroupActivity : AppCompatActivity() {
 
         btnShareLocation.setOnClickListener {
             showShareLocationConfirmationDialog()
+            fetchSharedUsers();
+            val intent = Intent(this@GroupActivity, LocationActivity::class.java)
+            intent.putStringArrayListExtra("activeUserIds", ArrayList(sharedUsers))
+            startActivity(intent)
         }
 
         btnSharedLocation.setOnClickListener {
-            toggleVisibility(spinnerSharedLocations)
-            fetchSharedUsers()
+            fetchSharedUsers();
+            val intent = Intent(this@GroupActivity, LocationActivity::class.java)
+            intent.putStringArrayListExtra("activeUserIds", ArrayList(sharedUsers))
+            startActivity(intent)
+//            toggleVisibility(spinnerSharedLocations)
+//            fetchSharedUsers()
         }
 
         val geofenceclickListener = View.OnClickListener { view ->
@@ -619,6 +618,7 @@ class GroupActivity : AppCompatActivity() {
         builder.setPositiveButton("Yes") { dialog, _ ->
             dialog.dismiss()
             shareLiveLocation()
+
         }
 
         builder.setNegativeButton("No") { dialog, _ ->
@@ -634,7 +634,11 @@ class GroupActivity : AppCompatActivity() {
         builder.setTitle("Location Shared")
         builder.setMessage("Your location is now visible to other group members.")
         builder.setPositiveButton("OK") { dialog, _ ->
+            val intent = Intent(this@GroupActivity, LocationActivity::class.java)
+            intent.putStringArrayListExtra("activeUserIds", ArrayList(sharedUsers))
+            startActivity(intent)
             dialog.dismiss()
+
         }
 
         val dialog: AlertDialog = builder.create()
@@ -645,8 +649,8 @@ class GroupActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         } else {
-            requestLocationUpdates()
             showLocationSharedDialog()
+            requestLocationUpdates()
         }
     }
 
@@ -685,11 +689,13 @@ class GroupActivity : AppCompatActivity() {
                 userAdapter.clear()
                 dataSnapshot.children.forEach { snapshot ->
                     val userId = snapshot.key ?: return@forEach
+                    Log.e("family userId :",userId.toString());
                     if(userId != userName){
                         sharedUsers.add(userId);
                         userAdapter.add(userId)
                     }
                 }
+                Log.e("family Shared Users :: ",sharedUsers.toString());
                 userAdapter.notifyDataSetChanged()
             }
 
