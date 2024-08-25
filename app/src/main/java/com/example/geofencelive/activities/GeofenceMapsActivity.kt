@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.os.Handler
 import android.Manifest
 import android.app.PendingIntent
+import com.google.maps.android.PolyUtil
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
@@ -56,7 +57,13 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.Polygon
+import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.gms.tasks.Task
+import java.lang.Math.toRadians
+import kotlin.math.cos
+import kotlin.math.sin
+
 
 class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap.OnMapLongClickListener{
 
@@ -74,6 +81,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
     private lateinit var geofencingHelper: GeofenceHelper
     private lateinit var coordinatesToShow: LatLng
     private lateinit var settingsClient: SettingsClient
+    private var polygon: Polygon? = null
 
 
     private val geofenceList = mutableListOf<Geofence>()
@@ -86,6 +94,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
     private var currentLocationMarker: Marker? = null
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
+    private var isInsideGeofence = false
 
 
 
@@ -177,6 +186,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
         setupLocationUpdates()
        // checkLocationSettings()
 
+
     }
 
     override fun onResumeFragments() {
@@ -208,7 +218,22 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
         markPreviouslyAddedGeofences();
 
+//        val center = LatLng(28.4916, 77.0745 ) // Replace with your desired center
+//        val numberOfSides = 6 // Replace with desired number of sides
+//        val radius = 0.01 // Replace with desired radius in degrees
+//
+//        val polygonOptions = createPolygon(center, numberOfSides, radius)
+//        polygonOptions.strokeColor(Color.RED)
+//        polygonOptions.fillColor(Color.argb(50, 150, 50, 50))
+//
+//        val polygonVertices = googleMap.addPolygon(polygonOptions).points
+//
+//        googleMap.addPolygon(polygonOptions)
+//        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 14f))
+//        startLocationUpdates(googleMap, polygonVertices)
+
         val nagarro = LatLng(28.4916, 77.0745 )
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(nagarro, 14F))
 
 //        if(coordinatesToShow != nagarro){
 //            mMap.addMarker(MarkerOptions().position(coordinatesToShow).title("User coordinates when geofence event occur"))
@@ -232,6 +257,162 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 
         setupLocationUpdates()
 
+    }
+
+    private fun createPolygonGeofence(center: LatLng) {
+        // Clear any existing polygon
+        polygon?.remove()
+
+        // Define the number of sides and radius for the polygon
+        val numberOfSides = 6 // Hexagon
+        val radius = 0.01 // Approximate radius in degrees
+
+        val polygonPoints = generatePolygonPoints(center, numberOfSides, radius)
+
+        // Draw the polygon on the map
+        polygon = mMap.addPolygon(
+            PolygonOptions()
+                .addAll(polygonPoints)
+                .strokeColor(Color.RED)
+                .fillColor(Color.argb(50, 150, 50, 50))
+        )
+
+        // Start monitoring for geofence events
+        startMonitoringGeofence(polygonPoints)
+    }
+
+    private fun generatePolygonPoints(center: LatLng, sides: Int, radius: Double): List<LatLng> {
+        val points = mutableListOf<LatLng>()
+        for (i in 0 until sides) {
+            val angle = 2.0 * Math.PI * i / sides
+            val lat = center.latitude + radius * Math.cos(angle)
+            val lng = center.longitude + radius * Math.sin(angle)
+            points.add(LatLng(lat, lng))
+        }
+        return points
+    }
+
+    private fun startMonitoringGeofence(polygonPoints: List<LatLng>) {
+        val locationRequest = LocationRequest.create().apply {
+            interval = 10000 // 10 seconds
+            fastestInterval = 5000 // 5 seconds
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val locationCallback = object : LocationCallback() {
+            var isInsideGeofence = false
+
+            override fun onLocationResult(p0: LocationResult) {
+                p0 ?: return
+                for (location in p0.locations) {
+                    val userLocation = LatLng(location.latitude, location.longitude)
+                    val isCurrentlyInside = PolyUtil.containsLocation(userLocation, polygonPoints, true)
+
+                    if (isCurrentlyInside && !isInsideGeofence) {
+                        isInsideGeofence = true
+                        Toast.makeText(this@GeofenceMapsActivity, "Geofence entered polygon", Toast.LENGTH_LONG).show()
+                        Log.d("Geofence", "User entered the geofence.")
+                        // Trigger entry event (e.g., show notification)
+                    } else if (!isCurrentlyInside && isInsideGeofence) {
+                        Toast.makeText(this@GeofenceMapsActivity, "Geofence exit polygon", Toast.LENGTH_LONG).show()
+                        isInsideGeofence = false
+                        Log.d("Geofence", "User exited the geofence.")
+                        // Trigger exit event (e.g., show notification)
+                    }
+                }
+            }
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+
+    private fun startLocationUpdates(googleMap: GoogleMap, polygonVertices: List<LatLng>) {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        val locationRequest = LocationRequest.create().apply {
+            interval = 10000 // 10 seconds
+            fastestInterval = 5000 // 5 seconds
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                p0 ?: return
+                for (location in p0.locations) {
+                    val userLocation = LatLng(location.latitude, location.longitude)
+                    val isCurrentlyInside = PolyUtil.containsLocation(userLocation, polygonVertices, true)
+
+                    if (isCurrentlyInside && !isInsideGeofence) {
+                        isInsideGeofence = true
+                        Toast.makeText(this@GeofenceMapsActivity, "ENtered in geofence", Toast.LENGTH_LONG).show()
+                        // Handle geofence entry
+                    } else if(!isCurrentlyInside && isInsideGeofence) {
+                        isInsideGeofence = false
+                        // Handle geofence exit
+                        Toast.makeText(this@GeofenceMapsActivity, "Exited from  geofence", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            mainLooper
+        )
+    }
+
+    private fun createPolygon(center: LatLng, numberOfSides: Int, radius: Double): PolygonOptions {
+        val polygonOptions = PolygonOptions()
+        val angleStep = 360.0 / numberOfSides
+
+        for (i in 0 until numberOfSides) {
+            val angle = toRadians(i * angleStep)
+            val latitude = center.latitude + (radius * cos(angle))
+            val longitude = center.longitude + (radius * sin(angle))
+            polygonOptions.add(LatLng(latitude, longitude))
+        }
+
+        return polygonOptions
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -600,6 +781,7 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 //                addMarker(latLng)
 //                addCircle(latLng, GEOFENCE_RADIUS)
 //                zoomOnMap(latLng)
+               // createPolygonGeofence(latLng)
                 addGeofence(System.currentTimeMillis().toString(), latLng, GEOFENCE_RADIUS,true)
             }else{
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
@@ -616,7 +798,12 @@ class GeofenceMapsActivity : AppCompatActivity(), OnMapReadyCallback , GoogleMap
 //            addCircle(latLng, GEOFENCE_RADIUS)
 //            zoomOnMap(latLng)
             addGeofence(System.currentTimeMillis().toString(), latLng, GEOFENCE_RADIUS, true)
+           // createPolygonGeofence(latLng)
         }
+
+
+
+
 
 
     }
