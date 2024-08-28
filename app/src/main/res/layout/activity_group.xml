@@ -146,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:text="Live Tracking"
                 android:textStyle="bold"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="@color/text_color"
                 />
 
@@ -182,7 +182,7 @@
                 android:layout_height="wrap_content"
                 android:text="Geo-Locations"
                 android:textStyle="bold"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="@color/text_color"
                 />
 
@@ -212,7 +212,7 @@
                 android:layout_height="wrap_content"
                 android:text="Share Location"
                 android:textStyle="bold"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="@color/text_color"
                 />
 
